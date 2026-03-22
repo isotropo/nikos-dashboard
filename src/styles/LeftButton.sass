@@ -1,0 +1,18 @@
+@import "./variables"
+    
+.LeftButton
+    background: rgba(#000, 0.25)
+    text-align: left
+    padding: $leftButtonPadding
+    width: calc(100% - ($leftButtonPadding * 2))
+    color: #fff
+    cursor: pointer
+
+    &:hover
+        background: rgba(#000, 0.5)
+
+    &.selected
+        padding-left: calc($leftButtonPadding * 2)
+        width: calc(100% - ($leftButtonPadding * 3))
+        font-weight: bold
+        filter: invert(100%)
