@@ -1,70 +1,40 @@
-# Getting Started with Create React App
+# Nikos Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React dashboard for exploring income gaps, work feasibility, and scenario-based planning.
 
-## Available Scripts
-
-In the project directory, you can run:
+## Scripts
 
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Runs the app locally in development mode at `http://localhost:3000`.
 
 ### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Runs the test suite.
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the production bundle into `build/`.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Netlify Deployment
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This repo is configured for Netlify with:
 
-### `npm run eject`
+- [netlify.toml](/Users/nikosstroubos/dev/NSQ/nikos-dashboard/netlify.toml)
+- [public/_redirects](/Users/nikosstroubos/dev/NSQ/nikos-dashboard/public/_redirects)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Recommended Netlify settings:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Build command: `npm run build`
+- Publish directory: `build`
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Deploy steps:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. Push your branch to GitHub.
+2. In Netlify, choose `Add new site` -> `Import an existing project`.
+3. Connect GitHub and select this repository.
+4. Confirm the build command is `npm run build`.
+5. Confirm the publish directory is `build`.
+6. Deploy the site.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+The redirect rule is included so SPA routes can resolve to `index.html` if client-side routing is added later.
