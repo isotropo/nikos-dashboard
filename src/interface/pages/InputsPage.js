@@ -1,9 +1,372 @@
+import "../../styles/InputsPage.sass";
 import Page from "../Page"
 
-const InputsPage = () =>
+const toDisplayNumber = (value) =>
 {
+    if (value === null || value === undefined)
+    {
+        return "";
+    }
+
+    return String(value);
+}
+
+const parseNumber = (value) =>
+{
+    if (value === "")
+    {
+        return 0;
+    }
+
+    return Number(value);
+}
+
+const Field = ({
+    label,
+    onChange,
+    step = "0.01",
+    value,
+}) =>
+{
+    return <label className="InputsField">
+        <span>{label}</span>
+        <input
+            onChange={(event) => onChange(parseNumber(event.target.value))}
+            step={step}
+            type="number"
+            value={toDisplayNumber(value)}
+        />
+    </label>
+}
+
+const InputsSection = ({ children, hint, title }) =>
+{
+    return <section className="InputsSection">
+        <h2>{title}</h2>
+        {hint && <p className="InputsSection__hint">{hint}</p>}
+        {children}
+    </section>
+}
+
+const InputsPage = ({ planInput, setPlanInput }) =>
+{
+    const restaurantSource = planInput.incomeSources[0];
+
+    const updatePlanInput = (updater) =>
+    {
+        setPlanInput((current) => updater(current));
+    }
+
+    const updateFixedExpense = (itemId, monthlyAmount) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                fixedLineItems: current.expenses.fixedLineItems.map((item) =>
+                    item.id === itemId ? { ...item, monthlyAmount } : item
+                ),
+            },
+        }));
+    }
+
+    const updateVariableExpense = (itemId, scenarioKey, amount) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                variableLineItems: current.expenses.variableLineItems.map((item) =>
+                    item.id === itemId
+                        ? {
+                            ...item,
+                            monthlyAmount: {
+                                ...item.monthlyAmount,
+                                [scenarioKey]: amount,
+                            },
+                        }
+                        : item
+                ),
+            },
+        }));
+    }
+
+    const updateIrregularExpense = (itemId, key, value) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                irregularLineItems: current.expenses.irregularLineItems.map((item) =>
+                    item.id === itemId ? { ...item, [key]: value } : item
+                ),
+            },
+        }));
+    }
+
+    const updateGoal = (key, value) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            goals: {
+                ...current.goals,
+                [key]: value,
+            },
+        }));
+    }
+
+    const updateWorkProfile = (profileKey, key, value) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            workProfiles: {
+                ...current.workProfiles,
+                [profileKey]: {
+                    ...current.workProfiles[profileKey],
+                    [key]: value,
+                },
+            },
+        }));
+    }
+
+    const updateConstraint = (key, value) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            constraints: {
+                ...current.constraints,
+                [key]: value,
+            },
+        }));
+    }
+
+    const updateRestaurantField = (key, value) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            incomeSources: current.incomeSources.map((source) =>
+                source.id === restaurantSource.id ? { ...source, [key]: value } : source
+            ),
+        }));
+    }
+
+    const updateRestaurantAssumption = (assumptionKey, scenarioKey, value) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            incomeSources: current.incomeSources.map((source) =>
+                source.id === restaurantSource.id
+                    ? {
+                        ...source,
+                        assumptions: {
+                            ...source.assumptions,
+                            [assumptionKey]: {
+                                ...source.assumptions[assumptionKey],
+                                [scenarioKey]: value,
+                            },
+                        },
+                    }
+                    : source
+            ),
+        }));
+    }
+
     return <Page>
-        <h1>Inputs</h1>
+        <div className="InputsPage">
+            <header className="InputsPage__header">
+                <h1>Inputs</h1>
+                <p>
+                    Edit the raw plan inputs here. The analytics page should respond
+                    to these values directly, so we only store user-authored facts
+                    and assumptions, not derived totals.
+                </p>
+            </header>
+
+            <div className="InputsPage__grid">
+                <InputsSection
+                    hint="These are direct monthly line items. Their total is derived later."
+                    title="Fixed Monthly Expenses"
+                >
+                    <div className="InputsFieldGrid">
+                        {planInput.expenses.fixedLineItems.map((item) =>
+                            <Field
+                                key={item.id}
+                                label={item.label}
+                                onChange={(value) => updateFixedExpense(item.id, value)}
+                                value={item.monthlyAmount}
+                            />
+                        )}
+                    </div>
+                </InputsSection>
+
+                <InputsSection
+                    hint="Variable expenses stay range-based so the matrix can test expense pressure separately from income."
+                    title="Variable Expenses"
+                >
+                    <div className="InputsFieldGrid">
+                        {planInput.expenses.variableLineItems.map((item) => (
+                            <div className="InputsFieldGrid InputsField--full" key={item.id}>
+                                <Field
+                                    label={`${item.label} Low`}
+                                    onChange={(value) => updateVariableExpense(item.id, "low", value)}
+                                    value={item.monthlyAmount.low}
+                                />
+                                <Field
+                                    label={`${item.label} Expected`}
+                                    onChange={(value) => updateVariableExpense(item.id, "expected", value)}
+                                    value={item.monthlyAmount.expected}
+                                />
+                                <Field
+                                    label={`${item.label} High`}
+                                    onChange={(value) => updateVariableExpense(item.id, "high", value)}
+                                    value={item.monthlyAmount.high}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </InputsSection>
+
+                <InputsSection
+                    hint="Irregular items are normalized during analysis, so you enter the actual cadence here."
+                    title="Irregular Expenses"
+                >
+                    <div className="InputsFieldGrid">
+                        {planInput.expenses.irregularLineItems.map((item) => (
+                            <div className="InputsFieldGrid InputsField--full" key={item.id}>
+                                <Field
+                                    label={`${item.label} Amount`}
+                                    onChange={(value) => updateIrregularExpense(item.id, "amount", value)}
+                                    value={item.amount}
+                                />
+                                <Field
+                                    label={`${item.label} Every N Months`}
+                                    onChange={(value) => updateIrregularExpense(item.id, "everyMonths", value)}
+                                    step="1"
+                                    value={item.everyMonths}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </InputsSection>
+
+                <InputsSection
+                    hint="These are stored as rates, so 10% is entered as 0.10."
+                    title="Goals"
+                >
+                    <div className="InputsFieldGrid">
+                        <Field
+                            label="Savings Rate"
+                            onChange={(value) => updateGoal("savingsRate", value)}
+                            value={planInput.goals.savingsRate}
+                        />
+                        <Field
+                            label="Investing Rate"
+                            onChange={(value) => updateGoal("investingRate", value)}
+                            value={planInput.goals.investingRate}
+                        />
+                    </div>
+                </InputsSection>
+
+                <InputsSection
+                    hint="Work profiles represent how much you choose to work, separate from how well those shifts pay."
+                    title="Work Profiles"
+                >
+                    <div className="InputsFieldGrid">
+                        {Object.entries(planInput.workProfiles).map(([profileKey, profile]) => (
+                            <div className="InputsFieldGrid InputsField--full" key={profileKey}>
+                                <Field
+                                    label={`${profileKey} Shifts / Week`}
+                                    onChange={(value) => updateWorkProfile(profileKey, "shiftsPerWeek", value)}
+                                    value={profile.shiftsPerWeek}
+                                />
+                                <Field
+                                    label={`${profileKey} Hours / Shift`}
+                                    onChange={(value) => updateWorkProfile(profileKey, "workedHoursPerShift", value)}
+                                    value={profile.workedHoursPerShift}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </InputsSection>
+
+                <InputsSection
+                    hint="This keeps the current model honest about feasibility without introducing full scheduling logic yet."
+                    title="Constraints"
+                >
+                    <div className="InputsFieldGrid">
+                        <Field
+                            label="Max Worked Hours / Week"
+                            onChange={(value) => updateConstraint("maxWorkedHoursPerWeek", value)}
+                            value={planInput.constraints.maxWorkedHoursPerWeek}
+                        />
+                    </div>
+                </InputsSection>
+
+                <InputsSection
+                    hint="These are the restaurant pay assumptions currently feeding the analysis matrix."
+                    title="Restaurant Income"
+                >
+                    <div className="InputsFieldGrid">
+                        <Field
+                            label="Base Hourly Rate"
+                            onChange={(value) => updateRestaurantField("baseHourlyRate", value)}
+                            value={restaurantSource.baseHourlyRate}
+                        />
+                        <Field
+                            label="Meal Violations / Shift Expected"
+                            onChange={(value) => updateRestaurantAssumption("mealViolationsPerShift", "expected", value)}
+                            value={restaurantSource.assumptions.mealViolationsPerShift.expected}
+                        />
+                        <Field
+                            label="Meal Violations / Shift Conservative"
+                            onChange={(value) => updateRestaurantAssumption("mealViolationsPerShift", "conservative", value)}
+                            value={restaurantSource.assumptions.mealViolationsPerShift.conservative}
+                        />
+                        <Field
+                            label="Meal Violations / Shift Strong"
+                            onChange={(value) => updateRestaurantAssumption("mealViolationsPerShift", "strong", value)}
+                            value={restaurantSource.assumptions.mealViolationsPerShift.strong}
+                        />
+                        <Field
+                            label="Serving Share Expected"
+                            onChange={(value) => updateRestaurantAssumption("servingShare", "expected", value)}
+                            value={restaurantSource.assumptions.servingShare.expected}
+                        />
+                        <Field
+                            label="Serving Share Conservative"
+                            onChange={(value) => updateRestaurantAssumption("servingShare", "conservative", value)}
+                            value={restaurantSource.assumptions.servingShare.conservative}
+                        />
+                        <Field
+                            label="Serving Share Strong"
+                            onChange={(value) => updateRestaurantAssumption("servingShare", "strong", value)}
+                            value={restaurantSource.assumptions.servingShare.strong}
+                        />
+                        <Field
+                            label="Server Hourly Expected"
+                            onChange={(value) => updateRestaurantAssumption("serverHourly", "expected", value)}
+                            value={restaurantSource.assumptions.serverHourly.expected}
+                        />
+                        <Field
+                            label="Server Hourly Conservative"
+                            onChange={(value) => updateRestaurantAssumption("serverHourly", "conservative", value)}
+                            value={restaurantSource.assumptions.serverHourly.conservative}
+                        />
+                        <Field
+                            label="Server Hourly Strong"
+                            onChange={(value) => updateRestaurantAssumption("serverHourly", "strong", value)}
+                            value={restaurantSource.assumptions.serverHourly.strong}
+                        />
+                    </div>
+                </InputsSection>
+            </div>
+
+            <div className="InputsPage__footer">
+                This is the first pass of the inputs page: a direct editing surface
+                for the current domain model. We can improve labels, grouping, and
+                add richer controls once the product flow feels right.
+            </div>
+        </div>
     </Page>
 }
 

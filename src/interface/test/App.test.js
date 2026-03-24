@@ -34,3 +34,14 @@ test("switches the matrix when the work profile changes", () => {
   expect(screen.getByText("Work Profile: Max Work")).toBeInTheDocument();
   expect(screen.getAllByText("166.7 hrs").length).toBeGreaterThan(0);
 });
+
+test("updates analytics when inputs change", () => {
+  render(<App />);
+
+  const rentInput = screen.getByLabelText("Rent");
+  fireEvent.change(rentInput, { target: { value: "1200" } });
+
+  fireEvent.click(screen.getByText("Analytics"));
+
+  expect(screen.getAllByText("$2,625").length).toBeGreaterThan(0);
+});

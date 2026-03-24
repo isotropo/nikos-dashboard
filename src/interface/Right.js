@@ -3,18 +3,19 @@ import InputsPage from "./pages/InputsPage"
 import AnalyticsPage from "./pages/AnalyticsPage"
 import AboutPage from "./pages/AboutPage"
 
-const PAGE_COMPONENTS = {
-    Inputs: InputsPage,
-    Analytics: AnalyticsPage,
-    About: AboutPage,
-}
-
-const Right = ({ selectedPage }) => 
+const Right = ({ planInput, selectedPage, setPlanInput }) => 
 {
-    const SelectedPage = PAGE_COMPONENTS[selectedPage] ?? InputsPage
-
     return <div className="Right">
-        <SelectedPage />
+        {selectedPage === "Inputs" && (
+            <InputsPage
+                planInput={planInput}
+                setPlanInput={setPlanInput}
+            />
+        )}
+        {selectedPage === "Analytics" && (
+            <AnalyticsPage planInput={planInput} />
+        )}
+        {selectedPage === "About" && <AboutPage />}
     </div>   
 }
 

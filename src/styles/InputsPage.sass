@@ -1,0 +1,79 @@
+.InputsPage
+    display: flex
+    flex-direction: column
+    gap: 24px
+
+.InputsPage__header
+    max-width: 760px
+
+    h1
+        margin: 0 0 8px 0
+        font-size: 32px
+
+    p
+        margin: 0
+        color: rgba(255, 255, 255, 0.72)
+        line-height: 1.5
+
+.InputsPage__grid
+    display: grid
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+    gap: 18px
+
+.InputsSection
+    display: flex
+    flex-direction: column
+    gap: 14px
+    padding: 18px
+    border-radius: 20px
+    background: rgba(255, 255, 255, 0.05)
+    border: 1px solid rgba(255, 255, 255, 0.08)
+
+    h2
+        margin: 0
+        font-size: 20px
+
+.InputsSection__hint
+    margin: 0
+    color: rgba(255, 255, 255, 0.62)
+    font-size: 14px
+    line-height: 1.45
+
+.InputsFieldGrid
+    display: grid
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+    gap: 12px
+
+.InputsField
+    display: flex
+    flex-direction: column
+    gap: 6px
+
+    span
+        color: rgba(255, 255, 255, 0.78)
+        font-size: 13px
+        font-weight: 600
+
+    input
+        border: 1px solid rgba(255, 255, 255, 0.14)
+        border-radius: 12px
+        background: rgba(8, 10, 14, 0.35)
+        color: #fff
+        padding: 10px 12px
+        font: inherit
+
+.InputsField--full
+    grid-column: 1 / -1
+
+.InputsPage__footer
+    color: rgba(255, 255, 255, 0.58)
+    font-size: 13px
+    line-height: 1.5
+
+@media (max-width: 1100px)
+    .InputsPage__grid
+        grid-template-columns: 1fr
+
+@media (max-width: 700px)
+    .InputsFieldGrid
+        grid-template-columns: 1fr
