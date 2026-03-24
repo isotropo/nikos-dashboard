@@ -56,6 +56,41 @@
     gap: 16px
     align-items: stretch
 
+.IncomeGapMatrix__mobile
+    display: none
+
+.IncomeGapMatrix__mobileHint
+    color: rgba(255, 255, 255, 0.6)
+    font-size: 13px
+    font-weight: 600
+
+.IncomeGapMatrix__mobileSlides
+    display: flex
+    gap: 14px
+    overflow-x: auto
+    padding-bottom: 10px
+    scroll-snap-type: x mandatory
+    -webkit-overflow-scrolling: touch
+    scrollbar-width: thin
+
+.IncomeGapMatrix__mobileSlide
+    flex: 0 0 100%
+    min-width: 100%
+    scroll-snap-align: start
+
+.IncomeGapMatrix__mobileHeader
+    margin-bottom: 12px
+    border-radius: 18px
+    background: rgba(255, 255, 255, 0.06)
+    padding: 16px
+    font-weight: 700
+    text-align: center
+
+.IncomeGapMatrix__mobileCards
+    display: flex
+    flex-direction: column
+    gap: 14px
+
 .IncomeGapMatrix__corner,
 .IncomeGapMatrix__columnHeader,
 .IncomeGapMatrix__rowHeader
@@ -135,13 +170,9 @@
         align-items: flex-start
 
     .IncomeGapMatrix__grid
-        grid-template-columns: 1fr
-
-    .IncomeGapMatrix__corner
         display: none
 
-    .IncomeGapMatrix__columnHeader
-        display: none
-
-    .IncomeGapMatrix__rowHeader
-        margin-top: 8px
+    .IncomeGapMatrix__mobile
+        display: flex
+        flex-direction: column
+        gap: 12px

@@ -146,6 +146,37 @@ const findCell = (matrix, expenseScenario, incomeScenario) =>
     );
 }
 
+const MobileIncomeCarousel = ({ matrix }) =>
+{
+    return <div className="IncomeGapMatrix__mobile">
+        <div className="IncomeGapMatrix__mobileHint">
+            Swipe sideways to compare income scenarios.
+        </div>
+
+        <div className="IncomeGapMatrix__mobileSlides">
+            {matrix.axes.incomeScenarios.map((incomeScenario) =>
+                <section
+                    className="IncomeGapMatrix__mobileSlide"
+                    key={incomeScenario}
+                >
+                    <header className="IncomeGapMatrix__mobileHeader">
+                        {INCOME_LABELS[incomeScenario]}
+                    </header>
+
+                    <div className="IncomeGapMatrix__mobileCards">
+                        {matrix.axes.expenseScenarios.map((expenseScenario) =>
+                            <IncomeGapScenarioCard
+                                cell={findCell(matrix, expenseScenario, incomeScenario)}
+                                key={`${incomeScenario}-${expenseScenario}`}
+                            />
+                        )}
+                    </div>
+                </section>
+            )}
+        </div>
+    </div>
+}
+
 const IncomeGapMatrix = ({
     matrix,
     onSelectWorkProfile,
@@ -200,6 +231,8 @@ const IncomeGapMatrix = ({
                 ),
             ])}
         </div>
+
+        <MobileIncomeCarousel matrix={matrix} />
     </section>
 }
 
