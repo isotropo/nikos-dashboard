@@ -5,7 +5,7 @@ const Left = ({ selectedPage, onSelectPage }) =>
 {
     return <div className="Left">
         <div className="Left--buttons">
-            <LeftButton name={"Data"} 
+            <LeftButton name={"Inputs"} 
                 selectedPage={selectedPage}
                 onSelectPage={onSelectPage} />
             <LeftButton name={"Analytics"} 

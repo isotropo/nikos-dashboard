@@ -4,7 +4,7 @@ import Left from "./Left";
 import Right from "./Right";
 
 function App() {
-  const [selectedPage, setSelectedPage] = useState("Data");
+  const [selectedPage, setSelectedPage] = useState("Inputs");
 
   return (
     <div className="App">

@@ -1,17 +1,17 @@
 import "../styles/Right.sass"
-import DataPage from "./pages/DataPage"
+import InputsPage from "./pages/InputsPage"
 import AnalyticsPage from "./pages/AnalyticsPage"
 import AboutPage from "./pages/AboutPage"
 
 const PAGE_COMPONENTS = {
-    Data: DataPage,
+    Inputs: InputsPage,
     Analytics: AnalyticsPage,
     About: AboutPage,
 }
 
 const Right = ({ selectedPage }) => 
 {
-    const SelectedPage = PAGE_COMPONENTS[selectedPage] ?? DataPage
+    const SelectedPage = PAGE_COMPONENTS[selectedPage] ?? InputsPage
 
     return <div className="Right">
         <SelectedPage />

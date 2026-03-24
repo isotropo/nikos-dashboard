@@ -1,13 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import App from "../App";
 
-test("renders navigation and the default data page", () => {
+test("renders navigation and the default inputs page", () => {
   render(<App />);
 
-  expect(screen.getByText("Data")).toBeInTheDocument();
+  expect(screen.getAllByText("Inputs").length).toBeGreaterThan(0);
   expect(screen.getByText("Analytics")).toBeInTheDocument();
   expect(screen.getByText("About")).toBeInTheDocument();
-  expect(screen.getByText("Hey here is some Data!")).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Inputs" })).toBeInTheDocument();
 });
 
 test("renders the income gap matrix on the analytics page", () => {
