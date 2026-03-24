@@ -25,13 +25,16 @@ export const WORK_PROFILES = ["conservative", "expected", "max"];
  */
 
 /**
- * A variable monthly expense whose expected value can later diverge into a
- * fuller variance model.
+ * A variable monthly expense entered as a range. The expected value is derived
+ * later as the midpoint of that range.
  *
  * @typedef {Object} VariableExpenseLineItem
  * @property {string} id
  * @property {string} label
- * @property {VarianceValue} monthlyAmount
+ * @property {{
+ *   low: number,
+ *   high: number
+ * }} monthlyRange
  */
 
 /**
@@ -147,12 +150,9 @@ export const examplePlanInput = {
       {
         id: "groceries",
         label: "Groceries",
-        monthlyAmount: {
-          expected: 800,
+        monthlyRange: {
           low: 600,
           high: 1000,
-          conservative: null,
-          strong: null,
         },
       },
     ],

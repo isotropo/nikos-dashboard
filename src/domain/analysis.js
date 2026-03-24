@@ -21,6 +21,11 @@ const sum = (values) =>
     return values.reduce((total, value) => total + value, 0);
 }
 
+const getRangeMidpoint = (range) =>
+{
+    return (range.low + range.high) / 2;
+}
+
 const getFixedMonthlyExpenses = (planInput) =>
 {
     return sum(
@@ -39,8 +44,17 @@ const getVariableMonthlyExpenses = (planInput, expenseScenario) =>
 {
     return sum(
         planInput.expenses.variableLineItems.map((item) =>
-            getScenarioValue(item.monthlyAmount, expenseScenario)
-        )
+        {
+            switch (expenseScenario)
+            {
+                case "low":
+                    return item.monthlyRange.low;
+                case "high":
+                    return item.monthlyRange.high;
+                default:
+                    return getRangeMidpoint(item.monthlyRange);
+            }
+        })
     );
 }
 

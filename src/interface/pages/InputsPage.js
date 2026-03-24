@@ -92,9 +92,18 @@ const InputsSection = ({ children, hint, title }) =>
 const InputsPage = ({ planInput, setPlanInput }) =>
 {
     const [fixedExpensesExpanded, setFixedExpensesExpanded] = useState(true);
+    const [variableExpensesExpanded, setVariableExpensesExpanded] = useState(true);
     const restaurantSource = planInput.incomeSources[0];
     const fixedExpensesTotal = planInput.expenses.fixedLineItems.reduce(
         (total, item) => total + item.monthlyAmount,
+        0
+    );
+    const variableExpenseLowTotal = planInput.expenses.variableLineItems.reduce(
+        (total, item) => total + item.monthlyRange.low,
+        0
+    );
+    const variableExpenseHighTotal = planInput.expenses.variableLineItems.reduce(
+        (total, item) => total + item.monthlyRange.high,
         0
     );
 
@@ -158,7 +167,7 @@ const InputsPage = ({ planInput, setPlanInput }) =>
         }));
     }
 
-    const updateVariableExpense = (itemId, scenarioKey, amount) =>
+    const updateVariableExpense = (itemId, rangeKey, amount) =>
     {
         updatePlanInput((current) => ({
             ...current,
@@ -168,13 +177,58 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                     item.id === itemId
                         ? {
                             ...item,
-                            monthlyAmount: {
-                                ...item.monthlyAmount,
-                                [scenarioKey]: amount,
+                            monthlyRange: {
+                                ...item.monthlyRange,
+                                [rangeKey]: amount,
                             },
                         }
                         : item
                 ),
+            },
+        }));
+    }
+
+    const updateVariableExpenseName = (itemId, label) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                variableLineItems: current.expenses.variableLineItems.map((item) =>
+                    item.id === itemId ? { ...item, label } : item
+                ),
+            },
+        }));
+    }
+
+    const addVariableExpense = () =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                variableLineItems: [
+                    ...current.expenses.variableLineItems,
+                    {
+                        id: `variable-${Date.now()}`,
+                        label: "New Variable Expense",
+                        monthlyRange: {
+                            low: 0,
+                            high: 0,
+                        },
+                    },
+                ],
+            },
+        }));
+    }
+
+    const removeVariableExpense = (itemId) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                variableLineItems: current.expenses.variableLineItems.filter((item) => item.id !== itemId),
             },
         }));
     }
@@ -328,32 +382,68 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                     )}
                 </section>
 
-                <InputsSection
-                    hint="Variable expenses stay range-based so the matrix can test expense pressure separately from income."
-                    title="Variable Expenses"
-                >
-                    <div className="InputsFieldGrid">
-                        {planInput.expenses.variableLineItems.map((item) => (
-                            <div className="InputsFieldGrid InputsField--full" key={item.id}>
-                                <Field
-                                    label={`${item.label} Low`}
-                                    onChange={(value) => updateVariableExpense(item.id, "low", value)}
-                                    value={item.monthlyAmount.low}
-                                />
-                                <Field
-                                    label={`${item.label} Expected`}
-                                    onChange={(value) => updateVariableExpense(item.id, "expected", value)}
-                                    value={item.monthlyAmount.expected}
-                                />
-                                <Field
-                                    label={`${item.label} High`}
-                                    onChange={(value) => updateVariableExpense(item.id, "high", value)}
-                                    value={item.monthlyAmount.high}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </InputsSection>
+                <section className="InputsSection">
+                    <button
+                        className="InputsSection__toggle"
+                        onClick={() => setVariableExpensesExpanded((current) => !current)}
+                        type="button"
+                    >
+                        <div>
+                            <h2>Variable Expenses</h2>
+                            <p className="InputsSection__hint">
+                                Enter a low and high monthly range. The expected case is derived automatically as the midpoint.
+                            </p>
+                        </div>
+                        <div className="InputsSection__summary">
+                            <strong>{formatCurrency(variableExpenseLowTotal)} - {formatCurrency(variableExpenseHighTotal)}</strong>
+                            <span>{variableExpensesExpanded ? "Collapse" : "Expand"}</span>
+                        </div>
+                    </button>
+
+                    {variableExpensesExpanded && (
+                        <div className="InputsLineItems">
+                            {planInput.expenses.variableLineItems.map((item) => (
+                                <div className="InputsLineItem" key={item.id}>
+                                    <Field
+                                        ariaLabel={`${item.label} Name`}
+                                        label="Name"
+                                        onChange={(value) => updateVariableExpenseName(item.id, value)}
+                                        parseValue={parseText}
+                                        type="text"
+                                        value={item.label}
+                                    />
+                                    <Field
+                                        ariaLabel={`${item.label} Low Monthly Amount`}
+                                        label="Low"
+                                        onChange={(value) => updateVariableExpense(item.id, "low", value)}
+                                        value={item.monthlyRange.low}
+                                    />
+                                    <Field
+                                        ariaLabel={`${item.label} High Monthly Amount`}
+                                        label="High"
+                                        onChange={(value) => updateVariableExpense(item.id, "high", value)}
+                                        value={item.monthlyRange.high}
+                                    />
+                                    <button
+                                        className="InputsLineItem__remove"
+                                        onClick={() => removeVariableExpense(item.id)}
+                                        type="button"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+
+                            <button
+                                className="InputsLineItems__add"
+                                onClick={addVariableExpense}
+                                type="button"
+                            >
+                                Add Variable Expense
+                            </button>
+                        </div>
+                    )}
+                </section>
 
                 <InputsSection
                     hint="Irregular items are normalized during analysis, so you enter the actual cadence here."

@@ -61,3 +61,22 @@ test("adds a fixed expense line item and updates analytics", () => {
 
   expect(screen.getAllByText("$2,525").length).toBeGreaterThan(0);
 });
+
+test("adds a variable expense range and uses the midpoint for expected analytics", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Add Variable Expense" }));
+
+  fireEvent.change(
+    screen.getByLabelText("New Variable Expense Low Monthly Amount"),
+    { target: { value: "100" } }
+  );
+  fireEvent.change(
+    screen.getByLabelText("New Variable Expense High Monthly Amount"),
+    { target: { value: "200" } }
+  );
+
+  fireEvent.click(screen.getByText("Analytics"));
+
+  expect(screen.getAllByText("$2,775").length).toBeGreaterThan(0);
+});
