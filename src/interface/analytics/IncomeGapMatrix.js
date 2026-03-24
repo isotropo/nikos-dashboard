@@ -12,6 +12,12 @@ const EXPENSE_LABELS = {
     high: "High Expenses",
 };
 
+const WORK_PROFILE_LABELS = {
+    conservative: "Conservative Work",
+    expected: "Expected Work",
+    max: "Max Work",
+};
+
 const formatCurrency = (value) =>
 {
     if (!Number.isFinite(value))
@@ -57,6 +63,22 @@ const formatFeasibility = (cell) =>
         default:
             return "Over 40 hr/week cap";
     }
+}
+
+const WorkProfileSelector = ({ onSelectWorkProfile, selectedWorkProfile }) =>
+{
+    return <div className="WorkProfileSelector">
+        {Object.entries(WORK_PROFILE_LABELS).map(([profile, label]) =>
+            <button
+                className={`WorkProfileSelector__button ${selectedWorkProfile === profile ? "selected" : ""}`}
+                key={profile}
+                onClick={() => onSelectWorkProfile(profile)}
+                type="button"
+            >
+                {label}
+            </button>
+        )}
+    </div>
 }
 
 const getCardTone = (cell) =>
@@ -124,7 +146,11 @@ const findCell = (matrix, expenseScenario, incomeScenario) =>
     );
 }
 
-const IncomeGapMatrix = ({ matrix }) =>
+const IncomeGapMatrix = ({
+    matrix,
+    onSelectWorkProfile,
+    selectedWorkProfile,
+}) =>
 {
     return <section className="IncomeGapMatrix">
         <header className="IncomeGapMatrix__header">
@@ -132,10 +158,21 @@ const IncomeGapMatrix = ({ matrix }) =>
             <p>
                 Compare nine combinations of expense pressure and income strength.
                 The center card is the expected baseline, and the surrounding cards
-                show how risk shifts around it. This first pass assumes a
-                40-hour maximum workweek.
+                show how risk shifts around it. Work behavior is selected
+                separately so you can see how the same expense and pay conditions
+                change when you choose a different shift volume.
             </p>
         </header>
+
+        <div className="IncomeGapMatrix__toolbar">
+            <div className="IncomeGapMatrix__toolbarLabel">
+                Work Profile: {WORK_PROFILE_LABELS[selectedWorkProfile]}
+            </div>
+            <WorkProfileSelector
+                onSelectWorkProfile={onSelectWorkProfile}
+                selectedWorkProfile={selectedWorkProfile}
+            />
+        </div>
 
         <div className="IncomeGapMatrix__grid">
             <div className="IncomeGapMatrix__corner">Expense vs Income</div>

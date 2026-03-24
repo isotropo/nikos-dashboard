@@ -1,6 +1,7 @@
 import {
   EXPENSE_SCENARIOS,
   INCOME_SCENARIOS,
+  WORK_PROFILES,
 } from "./planModel";
 
 const WEEKS_PER_MONTH = 4.33;
@@ -62,10 +63,10 @@ const getRequiredIncome = (monthlyExpenses, goals) =>
     return monthlyExpenses / keepRate;
 }
 
-const getRestaurantIncome = (source, incomeScenario) =>
+const getRestaurantIncome = (source, incomeScenario, workProfile) =>
 {
-    const shiftsPerMonth = source.shiftsPerWeek * WEEKS_PER_MONTH;
-    const workedHoursPerMonth = shiftsPerMonth * source.workedHoursPerShift;
+    const shiftsPerMonth = workProfile.shiftsPerWeek * WEEKS_PER_MONTH;
+    const workedHoursPerMonth = shiftsPerMonth * workProfile.workedHoursPerShift;
     const mealViolationHoursPerMonth = shiftsPerMonth *
         getScenarioValue(source.assumptions.mealViolationsPerShift, incomeScenario);
     const servingShare = getScenarioValue(source.assumptions.servingShare, incomeScenario);
@@ -81,15 +82,17 @@ const getRestaurantIncome = (source, incomeScenario) =>
     };
 }
 
-const getCurrentWorkProfile = (planInput, incomeScenario) =>
+const getCurrentWorkProfile = (planInput, incomeScenario, selectedWorkProfile) =>
 {
+    const workProfile = planInput.workProfiles[selectedWorkProfile];
+
     return planInput.incomeSources.reduce((totals, source) =>
     {
         switch (source.type)
         {
             case "restaurant":
             {
-                const income = getRestaurantIncome(source, incomeScenario);
+                const income = getRestaurantIncome(source, incomeScenario, workProfile);
 
                 return {
                     currentIncome: totals.currentIncome + income.income,
@@ -120,7 +123,10 @@ const getGapHours = (gap, currentWorkedHoursPerMonth, weightedHourlyTotal) =>
     return gap / effectiveWorkedHourly;
 }
 
-export const buildIncomeGapMatrix = (planInput) =>
+export const buildIncomeGapMatrix = (
+    planInput,
+    selectedWorkProfile = WORK_PROFILES[1]
+) =>
 {
     const cells = [];
     const maxWorkedHoursPerMonth = planInput.constraints.maxWorkedHoursPerWeek * WEEKS_PER_MONTH;
@@ -131,7 +137,11 @@ export const buildIncomeGapMatrix = (planInput) =>
         {
             const monthlyExpenses = getMonthlyExpenses(planInput, expenseScenario);
             const requiredIncome = getRequiredIncome(monthlyExpenses, planInput.goals);
-            const workProfile = getCurrentWorkProfile(planInput, incomeScenario);
+            const workProfile = getCurrentWorkProfile(
+                planInput,
+                incomeScenario,
+                selectedWorkProfile
+            );
             const currentIncome = workProfile.currentIncome;
             const gap = requiredIncome - currentIncome;
             const remainingWorkedHoursPerMonth = maxWorkedHoursPerMonth -
@@ -146,6 +156,7 @@ export const buildIncomeGapMatrix = (planInput) =>
                 id: `${expenseScenario}-${incomeScenario}`,
                 expenseScenario,
                 incomeScenario,
+                workProfile: selectedWorkProfile,
                 monthlyExpenses,
                 requiredIncome,
                 currentIncome,
@@ -169,6 +180,7 @@ export const buildIncomeGapMatrix = (planInput) =>
             expenseScenarios: EXPENSE_SCENARIOS,
             incomeScenarios: INCOME_SCENARIOS,
         },
+        workProfile: selectedWorkProfile,
         cells,
     };
 }

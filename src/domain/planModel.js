@@ -1,5 +1,6 @@
 export const EXPENSE_SCENARIOS = ["low", "expected", "high"];
 export const INCOME_SCENARIOS = ["conservative", "expected", "strong"];
+export const WORK_PROFILES = ["conservative", "expected", "max"];
 
 /**
  * A value that can stay fixed for now, but later expose scenario-specific
@@ -52,13 +53,20 @@ export const INCOME_SCENARIOS = ["conservative", "expected", "strong"];
  * @property {"restaurant"} type
  * @property {string} label
  * @property {number} baseHourlyRate
- * @property {number} shiftsPerWeek
- * @property {number} workedHoursPerShift
  * @property {{
  *   mealViolationsPerShift: VarianceValue,
  *   servingShare: VarianceValue,
  *   serverHourly: VarianceValue
  * }} assumptions
+ */
+
+/**
+ * A user behavior profile describing how much work they typically choose to
+ * take on at a given job.
+ *
+ * @typedef {Object} WorkProfile
+ * @property {number} shiftsPerWeek
+ * @property {number} workedHoursPerShift
  */
 
 /**
@@ -79,6 +87,11 @@ export const INCOME_SCENARIOS = ["conservative", "expected", "strong"];
  *   investingRate: number
  * }} goals
  * @property {{
+ *   conservative: WorkProfile,
+ *   expected: WorkProfile,
+ *   max: WorkProfile
+ * }} workProfiles
+ * @property {{
  *   maxWorkedHoursPerWeek: number
  * }} constraints
  * @property {RestaurantIncomeSource[]} incomeSources
@@ -91,6 +104,7 @@ export const INCOME_SCENARIOS = ["conservative", "expected", "strong"];
  * @property {string} id
  * @property {"low" | "expected" | "high"} expenseScenario
  * @property {"conservative" | "expected" | "strong"} incomeScenario
+ * @property {"conservative" | "expected" | "max"} workProfile
  * @property {number} monthlyExpenses
  * @property {number} requiredIncome
  * @property {number} currentIncome
@@ -111,6 +125,7 @@ export const INCOME_SCENARIOS = ["conservative", "expected", "strong"];
  *   expenseScenarios: string[],
  *   incomeScenarios: string[]
  * }} axes
+ * @property {"conservative" | "expected" | "max"} workProfile
  * @property {IncomeGapScenarioCell[]} cells
  */
 
@@ -154,6 +169,20 @@ export const examplePlanInput = {
     savingsRate: 0.1,
     investingRate: 0.2,
   },
+  workProfiles: {
+    conservative: {
+      shiftsPerWeek: 3,
+      workedHoursPerShift: 7,
+    },
+    expected: {
+      shiftsPerWeek: 4,
+      workedHoursPerShift: 7,
+    },
+    max: {
+      shiftsPerWeek: 5.5,
+      workedHoursPerShift: 7,
+    },
+  },
   constraints: {
     maxWorkedHoursPerWeek: 40,
   },
@@ -163,8 +192,6 @@ export const examplePlanInput = {
       type: "restaurant",
       label: "Restaurant Job",
       baseHourlyRate: 17.81,
-      shiftsPerWeek: 3,
-      workedHoursPerShift: 7,
       assumptions: {
         mealViolationsPerShift: {
           expected: 0.7,
