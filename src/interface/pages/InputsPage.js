@@ -21,21 +21,48 @@ const parseNumber = (value) =>
     return Number(value);
 }
 
+const toDisplayPercent = (value) =>
+{
+    if (value === null || value === undefined)
+    {
+        return "";
+    }
+
+    return String(value * 100);
+}
+
+const parsePercent = (value) =>
+{
+    if (value === "")
+    {
+        return 0;
+    }
+
+    return Number(value.replace("%", "").trim()) / 100;
+}
+
 const Field = ({
+    inputMode,
     label,
     onChange,
+    parseValue = parseNumber,
     step = "0.01",
+    type = "number",
+    toDisplayValue = toDisplayNumber,
     value,
 }) =>
 {
     return <label className="InputsField">
         <span>{label}</span>
-        <input
-            onChange={(event) => onChange(parseNumber(event.target.value))}
-            step={step}
-            type="number"
-            value={toDisplayNumber(value)}
-        />
+        <div className="InputsField__inputWrap">
+            <input
+                inputMode={inputMode}
+                onChange={(event) => onChange(parseValue(event.target.value))}
+                step={step}
+                type={type}
+                value={toDisplayValue(value)}
+            />
+        </div>
     </label>
 }
 
@@ -255,14 +282,22 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                 >
                     <div className="InputsFieldGrid">
                         <Field
+                            inputMode="decimal"
                             label="Savings Rate"
                             onChange={(value) => updateGoal("savingsRate", value)}
+                            parseValue={parsePercent}
+                            type="text"
                             value={planInput.goals.savingsRate}
+                            toDisplayValue={(value) => `${toDisplayPercent(value)}%`}
                         />
                         <Field
+                            inputMode="decimal"
                             label="Investing Rate"
                             onChange={(value) => updateGoal("investingRate", value)}
+                            parseValue={parsePercent}
+                            type="text"
                             value={planInput.goals.investingRate}
+                            toDisplayValue={(value) => `${toDisplayPercent(value)}%`}
                         />
                     </div>
                 </InputsSection>
