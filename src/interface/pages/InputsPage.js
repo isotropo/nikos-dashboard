@@ -93,6 +93,7 @@ const InputsPage = ({ planInput, setPlanInput }) =>
 {
     const [fixedExpensesExpanded, setFixedExpensesExpanded] = useState(true);
     const [variableExpensesExpanded, setVariableExpensesExpanded] = useState(true);
+    const [irregularExpensesExpanded, setIrregularExpensesExpanded] = useState(true);
     const restaurantSource = planInput.incomeSources[0];
     const fixedExpensesTotal = planInput.expenses.fixedLineItems.reduce(
         (total, item) => total + item.monthlyAmount,
@@ -104,6 +105,10 @@ const InputsPage = ({ planInput, setPlanInput }) =>
     );
     const variableExpenseHighTotal = planInput.expenses.variableLineItems.reduce(
         (total, item) => total + item.monthlyRange.high,
+        0
+    );
+    const irregularExpensesNormalizedTotal = planInput.expenses.irregularLineItems.reduce(
+        (total, item) => total + (item.amount / item.everyMonths),
         0
     );
 
@@ -242,6 +247,49 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                 irregularLineItems: current.expenses.irregularLineItems.map((item) =>
                     item.id === itemId ? { ...item, [key]: value } : item
                 ),
+            },
+        }));
+    }
+
+    const updateIrregularExpenseName = (itemId, label) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                irregularLineItems: current.expenses.irregularLineItems.map((item) =>
+                    item.id === itemId ? { ...item, label } : item
+                ),
+            },
+        }));
+    }
+
+    const addIrregularExpense = () =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                irregularLineItems: [
+                    ...current.expenses.irregularLineItems,
+                    {
+                        id: `irregular-${Date.now()}`,
+                        label: "New Irregular Expense",
+                        amount: 0,
+                        everyMonths: 1,
+                    },
+                ],
+            },
+        }));
+    }
+
+    const removeIrregularExpense = (itemId) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                irregularLineItems: current.expenses.irregularLineItems.filter((item) => item.id !== itemId),
             },
         }));
     }
@@ -445,28 +493,69 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                     )}
                 </section>
 
-                <InputsSection
-                    hint="Irregular items are normalized during analysis, so you enter the actual cadence here."
-                    title="Irregular Expenses"
-                >
-                    <div className="InputsFieldGrid">
-                        {planInput.expenses.irregularLineItems.map((item) => (
-                            <div className="InputsFieldGrid InputsField--full" key={item.id}>
-                                <Field
-                                    label={`${item.label} Amount`}
-                                    onChange={(value) => updateIrregularExpense(item.id, "amount", value)}
-                                    value={item.amount}
-                                />
-                                <Field
-                                    label={`${item.label} Every N Months`}
-                                    onChange={(value) => updateIrregularExpense(item.id, "everyMonths", value)}
-                                    step="1"
-                                    value={item.everyMonths}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </InputsSection>
+                <section className="InputsSection">
+                    <button
+                        className="InputsSection__toggle"
+                        onClick={() => setIrregularExpensesExpanded((current) => !current)}
+                        type="button"
+                    >
+                        <div>
+                            <h2>Irregular Expenses</h2>
+                            <p className="InputsSection__hint">
+                                Enter the actual amount and cadence. The monthly normalized value is derived automatically.
+                            </p>
+                        </div>
+                        <div className="InputsSection__summary">
+                            <strong>{formatCurrency(irregularExpensesNormalizedTotal)}</strong>
+                            <span>{irregularExpensesExpanded ? "Collapse" : "Expand"}</span>
+                        </div>
+                    </button>
+
+                    {irregularExpensesExpanded && (
+                        <div className="InputsLineItems">
+                            {planInput.expenses.irregularLineItems.map((item) => (
+                                <div className="InputsLineItem" key={item.id}>
+                                    <Field
+                                        ariaLabel={`${item.label} Name`}
+                                        label="Name"
+                                        onChange={(value) => updateIrregularExpenseName(item.id, value)}
+                                        parseValue={parseText}
+                                        type="text"
+                                        value={item.label}
+                                    />
+                                    <Field
+                                        ariaLabel={`${item.label} Amount`}
+                                        label="Amount"
+                                        onChange={(value) => updateIrregularExpense(item.id, "amount", value)}
+                                        value={item.amount}
+                                    />
+                                    <Field
+                                        ariaLabel={`${item.label} Every N Months`}
+                                        label="Utilities Every N Months"
+                                        onChange={(value) => updateIrregularExpense(item.id, "everyMonths", value)}
+                                        step="1"
+                                        value={item.everyMonths}
+                                    />
+                                    <button
+                                        className="InputsLineItem__remove"
+                                        onClick={() => removeIrregularExpense(item.id)}
+                                        type="button"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+
+                            <button
+                                className="InputsLineItems__add"
+                                onClick={addIrregularExpense}
+                                type="button"
+                            >
+                                Add Irregular Expense
+                            </button>
+                        </div>
+                    )}
+                </section>
 
                 <InputsSection
                     hint="These are stored as rates, so 10% is entered as 0.10."

@@ -80,3 +80,22 @@ test("adds a variable expense range and uses the midpoint for expected analytics
 
   expect(screen.getAllByText("$2,775").length).toBeGreaterThan(0);
 });
+
+test("adds an irregular expense and updates analytics through normalization", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Add Irregular Expense" }));
+
+  fireEvent.change(
+    screen.getByLabelText("New Irregular Expense Amount"),
+    { target: { value: "120" } }
+  );
+  fireEvent.change(
+    screen.getByLabelText("New Irregular Expense Every N Months"),
+    { target: { value: "3" } }
+  );
+
+  fireEvent.click(screen.getByText("Analytics"));
+
+  expect(screen.getAllByText("$2,665").length).toBeGreaterThan(0);
+});
