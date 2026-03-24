@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "../../styles/InputsPage.sass";
 import Page from "../Page"
 
@@ -41,7 +42,19 @@ const parsePercent = (value) =>
     return Number(value.replace("%", "").trim()) / 100;
 }
 
+const parseText = (value) => value;
+
+const formatCurrency = (value) =>
+{
+    return value.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+    });
+}
+
 const Field = ({
+    ariaLabel,
     inputMode,
     label,
     onChange,
@@ -56,6 +69,7 @@ const Field = ({
         <span>{label}</span>
         <div className="InputsField__inputWrap">
             <input
+                aria-label={ariaLabel}
                 inputMode={inputMode}
                 onChange={(event) => onChange(parseValue(event.target.value))}
                 step={step}
@@ -77,7 +91,12 @@ const InputsSection = ({ children, hint, title }) =>
 
 const InputsPage = ({ planInput, setPlanInput }) =>
 {
+    const [fixedExpensesExpanded, setFixedExpensesExpanded] = useState(true);
     const restaurantSource = planInput.incomeSources[0];
+    const fixedExpensesTotal = planInput.expenses.fixedLineItems.reduce(
+        (total, item) => total + item.monthlyAmount,
+        0
+    );
 
     const updatePlanInput = (updater) =>
     {
@@ -93,6 +112,48 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                 fixedLineItems: current.expenses.fixedLineItems.map((item) =>
                     item.id === itemId ? { ...item, monthlyAmount } : item
                 ),
+            },
+        }));
+    }
+
+    const updateFixedExpenseName = (itemId, label) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                fixedLineItems: current.expenses.fixedLineItems.map((item) =>
+                    item.id === itemId ? { ...item, label } : item
+                ),
+            },
+        }));
+    }
+
+    const addFixedExpense = () =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                fixedLineItems: [
+                    ...current.expenses.fixedLineItems,
+                    {
+                        id: `fixed-${Date.now()}`,
+                        label: "New Line Item",
+                        monthlyAmount: 0,
+                    },
+                ],
+            },
+        }));
+    }
+
+    const removeFixedExpense = (itemId) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                fixedLineItems: current.expenses.fixedLineItems.filter((item) => item.id !== itemId),
             },
         }));
     }
@@ -210,21 +271,62 @@ const InputsPage = ({ planInput, setPlanInput }) =>
             </header>
 
             <div className="InputsPage__grid">
-                <InputsSection
-                    hint="These are direct monthly line items. Their total is derived later."
-                    title="Fixed Monthly Expenses"
-                >
-                    <div className="InputsFieldGrid">
-                        {planInput.expenses.fixedLineItems.map((item) =>
-                            <Field
-                                key={item.id}
-                                label={item.label}
-                                onChange={(value) => updateFixedExpense(item.id, value)}
-                                value={item.monthlyAmount}
-                            />
-                        )}
-                    </div>
-                </InputsSection>
+                <section className="InputsSection">
+                    <button
+                        className="InputsSection__toggle"
+                        onClick={() => setFixedExpensesExpanded((current) => !current)}
+                        type="button"
+                    >
+                        <div>
+                            <h2>Fixed Monthly Expenses</h2>
+                            <p className="InputsSection__hint">
+                                These are direct monthly line items. Their total is derived later.
+                            </p>
+                        </div>
+                        <div className="InputsSection__summary">
+                            <strong>{formatCurrency(fixedExpensesTotal)}</strong>
+                            <span>{fixedExpensesExpanded ? "Collapse" : "Expand"}</span>
+                        </div>
+                    </button>
+
+                    {fixedExpensesExpanded && (
+                        <div className="InputsLineItems">
+                            {planInput.expenses.fixedLineItems.map((item) => (
+                                <div className="InputsLineItem" key={item.id}>
+                                    <Field
+                                        ariaLabel={`${item.label} Name`}
+                                        label="Name"
+                                        onChange={(value) => updateFixedExpenseName(item.id, value)}
+                                        parseValue={parseText}
+                                        type="text"
+                                        value={item.label}
+                                    />
+                                    <Field
+                                        ariaLabel={`${item.label} Monthly Amount`}
+                                        label="Monthly Amount"
+                                        onChange={(value) => updateFixedExpense(item.id, value)}
+                                        value={item.monthlyAmount}
+                                    />
+                                    <button
+                                        className="InputsLineItem__remove"
+                                        onClick={() => removeFixedExpense(item.id)}
+                                        type="button"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+
+                            <button
+                                className="InputsLineItems__add"
+                                onClick={addFixedExpense}
+                                type="button"
+                            >
+                                Add Fixed Expense
+                            </button>
+                        </div>
+                    )}
+                </section>
 
                 <InputsSection
                     hint="Variable expenses stay range-based so the matrix can test expense pressure separately from income."

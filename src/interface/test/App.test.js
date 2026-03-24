@@ -38,10 +38,26 @@ test("switches the matrix when the work profile changes", () => {
 test("updates analytics when inputs change", () => {
   render(<App />);
 
-  const rentInput = screen.getByLabelText("Rent");
+  const rentInput = screen.getByLabelText("Rent Monthly Amount");
   fireEvent.change(rentInput, { target: { value: "1200" } });
 
   fireEvent.click(screen.getByText("Analytics"));
 
   expect(screen.getAllByText("$2,625").length).toBeGreaterThan(0);
+});
+
+test("adds a fixed expense line item and updates analytics", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Add Fixed Expense" }));
+
+  const newNameInput = screen.getByDisplayValue("New Line Item");
+  const newAmountInput = screen.getAllByDisplayValue("0")[0];
+
+  fireEvent.change(newNameInput, { target: { value: "Phone" } });
+  fireEvent.change(newAmountInput, { target: { value: "100" } });
+
+  fireEvent.click(screen.getByText("Analytics"));
+
+  expect(screen.getAllByText("$2,525").length).toBeGreaterThan(0);
 });
