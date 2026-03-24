@@ -1,9 +1,14 @@
+import { buildIncomeGapMatrix } from "../../domain/analysis";
+import { examplePlanInput } from "../../domain/planModel";
+import IncomeGapMatrix from "../analytics/IncomeGapMatrix";
 import Page from "../Page"
 
 const AnalyticsPage = () =>
 {
+    const matrix = buildIncomeGapMatrix(examplePlanInput);
+
     return <Page>
-        <h1>Hey here is some Analytics!</h1>
+        <IncomeGapMatrix matrix={matrix} />
     </Page>
 }
 
