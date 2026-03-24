@@ -1,17 +1,13 @@
-import { useState } from "react"
 import "../styles/LeftButton.sass"
-import { APP } from "../scripts"
 
-const LeftButton = ({name, page, stateUpdate}) =>
+const LeftButton = ({ name, selectedPage, onSelectPage }) =>
 {
     const _onClick = () =>
     {
-        APP.Info.selectedPage = page
-        
-        stateUpdate(name)
+        onSelectPage(name)
     }
 
-    return <div className={`LeftButton ${APP.Info.leftButtonSelected === name ? "selected" : ""}`}
+    return <div className={`LeftButton ${selectedPage === name ? "selected" : ""}`}
         onClick={_onClick}>
         <span>{name}</span>
     </div>

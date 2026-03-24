@@ -1,11 +1,20 @@
-import { useState } from "react"
 import "../styles/Right.sass"
-import { APP } from "../scripts"
+import DataPage from "./pages/DataPage"
+import AnalyticsPage from "./pages/AnalyticsPage"
+import AboutPage from "./pages/AboutPage"
 
-const Right = () => 
+const PAGE_COMPONENTS = {
+    Data: DataPage,
+    Analytics: AnalyticsPage,
+    About: AboutPage,
+}
+
+const Right = ({ selectedPage }) => 
 {
+    const SelectedPage = PAGE_COMPONENTS[selectedPage] ?? DataPage
+
     return <div className="Right">
-        {APP.Info.selectedPage}
+        <SelectedPage />
     </div>   
 }
 
