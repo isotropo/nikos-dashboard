@@ -72,9 +72,16 @@ const getMonthlyExpenses = (planInput, expenseScenario) =>
         getVariableMonthlyExpenses(planInput, expenseScenario);
 }
 
-const getRequiredIncome = (monthlyExpenses, goals) =>
+const getRequiredIncome = (monthlyExpenses, currentIncome, goals) =>
 {
-    const keepRate = 1 - goals.savingsRate - goals.investingRate;
+    const totalGoalRate = goals.savingsRate + goals.investingRate;
+
+    if (goals.rateBasis === "actual_income")
+    {
+        return monthlyExpenses + (currentIncome * totalGoalRate);
+    }
+
+    const keepRate = 1 - totalGoalRate;
 
     if (keepRate <= 0)
     {
@@ -157,13 +164,17 @@ export const buildIncomeGapMatrix = (
         INCOME_SCENARIOS.forEach((incomeScenario) =>
         {
             const monthlyExpenses = getMonthlyExpenses(planInput, expenseScenario);
-            const requiredIncome = getRequiredIncome(monthlyExpenses, planInput.goals);
             const workProfile = getCurrentWorkProfile(
                 planInput,
                 incomeScenario,
                 selectedWorkProfile
             );
             const currentIncome = workProfile.currentIncome;
+            const requiredIncome = getRequiredIncome(
+                monthlyExpenses,
+                currentIncome,
+                planInput.goals
+            );
             const gap = requiredIncome - currentIncome;
             const remainingWorkedHoursPerMonth = maxWorkedHoursPerMonth -
                 workProfile.currentWorkedHoursPerMonth;

@@ -1,5 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import App from "../App";
+import { buildIncomeGapMatrix } from "../../domain/analysis";
+import { examplePlanInput } from "../../domain/planModel";
 
 test("renders navigation and the default inputs page", () => {
   render(<App />);
@@ -122,4 +124,36 @@ test("switches between expenses and income input views", () => {
 
   expect(screen.getByText("Restaurant Income")).toBeInTheDocument();
   expect(screen.queryByText("Fixed Monthly Expenses")).not.toBeInTheDocument();
+});
+
+test("supports goal rates based on actual projected income", () => {
+  const actualIncomePlanInput = {
+    ...examplePlanInput,
+    goals: {
+      ...examplePlanInput.goals,
+      rateBasis: "actual_income",
+    },
+  };
+
+  const actualIncomeMatrix = buildIncomeGapMatrix(actualIncomePlanInput, "expected");
+  const requiredIncomeMatrix = buildIncomeGapMatrix(examplePlanInput, "expected");
+  const actualIncomeCell = actualIncomeMatrix.cells.find(
+    (cell) =>
+      cell.expenseScenario === "expected" &&
+      cell.incomeScenario === "expected"
+  );
+  const requiredIncomeCell = requiredIncomeMatrix.cells.find(
+    (cell) =>
+      cell.expenseScenario === "expected" &&
+      cell.incomeScenario === "expected"
+  );
+
+  expect(actualIncomeCell.requiredIncome).toBeCloseTo(
+    actualIncomeCell.monthlyExpenses +
+      (actualIncomeCell.currentIncome * (examplePlanInput.goals.savingsRate + examplePlanInput.goals.investingRate)),
+    5
+  );
+  expect(actualIncomeCell.currentIncome).toBeCloseTo(requiredIncomeCell.currentIncome, 5);
+  expect(actualIncomeCell.requiredIncome).toBeLessThan(requiredIncomeCell.requiredIncome);
+  expect(actualIncomeCell.gap).toBeLessThan(requiredIncomeCell.gap);
 });
