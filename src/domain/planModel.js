@@ -22,6 +22,7 @@ export const WORK_PROFILES = ["conservative", "expected", "max"];
  * @property {string} id
  * @property {string} label
  * @property {number} monthlyAmount
+ * @property {boolean} isEnabled
  */
 
 /**
@@ -31,6 +32,7 @@ export const WORK_PROFILES = ["conservative", "expected", "max"];
  * @typedef {Object} VariableExpenseLineItem
  * @property {string} id
  * @property {string} label
+ * @property {boolean} isEnabled
  * @property {{
  *   low: number,
  *   high: number
@@ -45,6 +47,7 @@ export const WORK_PROFILES = ["conservative", "expected", "max"];
  * @property {string} label
  * @property {number} amount
  * @property {number} everyMonths
+ * @property {boolean} isEnabled
  */
 
 /**
@@ -140,16 +143,17 @@ export const WORK_PROFILES = ["conservative", "expected", "max"];
 export const examplePlanInput = {
   expenses: {
     fixedLineItems: [
-      { id: "rent", label: "Rent", monthlyAmount: 1000 },
-      { id: "parking", label: "Parking", monthlyAmount: 200 },
-      { id: "insurance", label: "Insurance", monthlyAmount: 400 },
-      { id: "internet", label: "Internet", monthlyAmount: 65 },
-      { id: "subscription", label: "Subscription", monthlyAmount: 10 },
+      { id: "rent", label: "Rent", monthlyAmount: 1000, isEnabled: true },
+      { id: "parking", label: "Parking", monthlyAmount: 200, isEnabled: true },
+      { id: "insurance", label: "Insurance", monthlyAmount: 400, isEnabled: true },
+      { id: "internet", label: "Internet", monthlyAmount: 65, isEnabled: true },
+      { id: "subscription", label: "Subscription", monthlyAmount: 10, isEnabled: true },
     ],
     variableLineItems: [
       {
         id: "groceries",
         label: "Groceries",
+        isEnabled: true,
         monthlyRange: {
           low: 600,
           high: 1000,
@@ -162,6 +166,7 @@ export const examplePlanInput = {
         label: "Utilities",
         amount: 300,
         everyMonths: 2,
+        isEnabled: true,
       },
     ],
   },

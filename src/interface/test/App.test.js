@@ -48,6 +48,16 @@ test("updates analytics when inputs change", () => {
   expect(screen.getAllByText("$2,625").length).toBeGreaterThan(0);
 });
 
+test("excludes disabled fixed expenses from analytics", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByLabelText("Include Rent"));
+
+  fireEvent.click(screen.getByText("Analytics"));
+
+  expect(screen.getAllByText("$1,625").length).toBeGreaterThan(0);
+});
+
 test("adds a fixed expense line item and updates analytics", () => {
   render(<App />);
 

@@ -26,24 +26,31 @@ const getRangeMidpoint = (range) =>
     return (range.low + range.high) / 2;
 }
 
+const getEnabledItems = (items) =>
+{
+    return items.filter((item) => item.isEnabled !== false);
+}
+
 const getFixedMonthlyExpenses = (planInput) =>
 {
     return sum(
-        planInput.expenses.fixedLineItems.map((item) => item.monthlyAmount)
+        getEnabledItems(planInput.expenses.fixedLineItems).map((item) => item.monthlyAmount)
     );
 }
 
 const getIrregularMonthlyExpenses = (planInput) =>
 {
     return sum(
-        planInput.expenses.irregularLineItems.map((item) => item.amount / item.everyMonths)
+        getEnabledItems(planInput.expenses.irregularLineItems).map(
+            (item) => item.amount / item.everyMonths
+        )
     );
 }
 
 const getVariableMonthlyExpenses = (planInput, expenseScenario) =>
 {
     return sum(
-        planInput.expenses.variableLineItems.map((item) =>
+        getEnabledItems(planInput.expenses.variableLineItems).map((item) =>
         {
             switch (expenseScenario)
             {

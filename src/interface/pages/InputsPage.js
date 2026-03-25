@@ -53,6 +53,10 @@ const formatCurrency = (value) =>
     });
 }
 
+const sum = (values) => values.reduce((total, value) => total + value, 0);
+
+const isItemEnabled = (item) => item.isEnabled !== false;
+
 const Field = ({
     ariaLabel,
     inputMode,
@@ -96,21 +100,25 @@ const InputsPage = ({ planInput, setPlanInput }) =>
     const [variableExpensesExpanded, setVariableExpensesExpanded] = useState(true);
     const [irregularExpensesExpanded, setIrregularExpensesExpanded] = useState(true);
     const restaurantSource = planInput.incomeSources[0];
-    const fixedExpensesTotal = planInput.expenses.fixedLineItems.reduce(
-        (total, item) => total + item.monthlyAmount,
-        0
+    const fixedExpensesTotal = sum(
+        planInput.expenses.fixedLineItems
+            .filter(isItemEnabled)
+            .map((item) => item.monthlyAmount)
     );
-    const variableExpenseLowTotal = planInput.expenses.variableLineItems.reduce(
-        (total, item) => total + item.monthlyRange.low,
-        0
+    const variableExpenseLowTotal = sum(
+        planInput.expenses.variableLineItems
+            .filter(isItemEnabled)
+            .map((item) => item.monthlyRange.low)
     );
-    const variableExpenseHighTotal = planInput.expenses.variableLineItems.reduce(
-        (total, item) => total + item.monthlyRange.high,
-        0
+    const variableExpenseHighTotal = sum(
+        planInput.expenses.variableLineItems
+            .filter(isItemEnabled)
+            .map((item) => item.monthlyRange.high)
     );
-    const irregularExpensesNormalizedTotal = planInput.expenses.irregularLineItems.reduce(
-        (total, item) => total + (item.amount / item.everyMonths),
-        0
+    const irregularExpensesNormalizedTotal = sum(
+        planInput.expenses.irregularLineItems
+            .filter(isItemEnabled)
+            .map((item) => item.amount / item.everyMonths)
     );
 
     const updatePlanInput = (updater) =>
@@ -126,6 +134,21 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                 ...current.expenses,
                 fixedLineItems: current.expenses.fixedLineItems.map((item) =>
                     item.id === itemId ? { ...item, monthlyAmount } : item
+                ),
+            },
+        }));
+    }
+
+    const toggleFixedExpenseEnabled = (itemId) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                fixedLineItems: current.expenses.fixedLineItems.map((item) =>
+                    item.id === itemId
+                        ? { ...item, isEnabled: !isItemEnabled(item) }
+                        : item
                 ),
             },
         }));
@@ -156,6 +179,7 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                         id: `fixed-${Date.now()}`,
                         label: "New Line Item",
                         monthlyAmount: 0,
+                        isEnabled: true,
                     },
                 ],
             },
@@ -194,6 +218,21 @@ const InputsPage = ({ planInput, setPlanInput }) =>
         }));
     }
 
+    const toggleVariableExpenseEnabled = (itemId) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                variableLineItems: current.expenses.variableLineItems.map((item) =>
+                    item.id === itemId
+                        ? { ...item, isEnabled: !isItemEnabled(item) }
+                        : item
+                ),
+            },
+        }));
+    }
+
     const updateVariableExpenseName = (itemId, label) =>
     {
         updatePlanInput((current) => ({
@@ -218,6 +257,7 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                     {
                         id: `variable-${Date.now()}`,
                         label: "New Variable Expense",
+                        isEnabled: true,
                         monthlyRange: {
                             low: 0,
                             high: 0,
@@ -252,6 +292,21 @@ const InputsPage = ({ planInput, setPlanInput }) =>
         }));
     }
 
+    const toggleIrregularExpenseEnabled = (itemId) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            expenses: {
+                ...current.expenses,
+                irregularLineItems: current.expenses.irregularLineItems.map((item) =>
+                    item.id === itemId
+                        ? { ...item, isEnabled: !isItemEnabled(item) }
+                        : item
+                ),
+            },
+        }));
+    }
+
     const updateIrregularExpenseName = (itemId, label) =>
     {
         updatePlanInput((current) => ({
@@ -278,6 +333,7 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                         label: "New Irregular Expense",
                         amount: 0,
                         everyMonths: 1,
+                        isEnabled: true,
                     },
                 ],
             },
@@ -413,7 +469,19 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                     {fixedExpensesExpanded && (
                         <div className="InputsLineItems">
                             {planInput.expenses.fixedLineItems.map((item) => (
-                                <div className="InputsLineItem" key={item.id}>
+                                <div
+                                    className={`InputsLineItem ${isItemEnabled(item) ? "" : "InputsLineItem--disabled"}`}
+                                    key={item.id}
+                                >
+                                    <label className="InputsLineItem__toggle">
+                                        <input
+                                            aria-label={`Include ${item.label}`}
+                                            checked={isItemEnabled(item)}
+                                            onChange={() => toggleFixedExpenseEnabled(item.id)}
+                                            type="checkbox"
+                                        />
+                                        <span>Include</span>
+                                    </label>
                                     <Field
                                         ariaLabel={`${item.label} Name`}
                                         label="Name"
@@ -470,7 +538,19 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                     {variableExpensesExpanded && (
                         <div className="InputsLineItems">
                             {planInput.expenses.variableLineItems.map((item) => (
-                                <div className="InputsLineItem" key={item.id}>
+                                <div
+                                    className={`InputsLineItem ${isItemEnabled(item) ? "" : "InputsLineItem--disabled"}`}
+                                    key={item.id}
+                                >
+                                    <label className="InputsLineItem__toggle">
+                                        <input
+                                            aria-label={`Include ${item.label}`}
+                                            checked={isItemEnabled(item)}
+                                            onChange={() => toggleVariableExpenseEnabled(item.id)}
+                                            type="checkbox"
+                                        />
+                                        <span>Include</span>
+                                    </label>
                                     <Field
                                         ariaLabel={`${item.label} Name`}
                                         label="Name"
@@ -533,7 +613,19 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                     {irregularExpensesExpanded && (
                         <div className="InputsLineItems">
                             {planInput.expenses.irregularLineItems.map((item) => (
-                                <div className="InputsLineItem" key={item.id}>
+                                <div
+                                    className={`InputsLineItem ${isItemEnabled(item) ? "" : "InputsLineItem--disabled"}`}
+                                    key={item.id}
+                                >
+                                    <label className="InputsLineItem__toggle">
+                                        <input
+                                            aria-label={`Include ${item.label}`}
+                                            checked={isItemEnabled(item)}
+                                            onChange={() => toggleIrregularExpenseEnabled(item.id)}
+                                            type="checkbox"
+                                        />
+                                        <span>Include</span>
+                                    </label>
                                     <Field
                                         ariaLabel={`${item.label} Name`}
                                         label="Name"

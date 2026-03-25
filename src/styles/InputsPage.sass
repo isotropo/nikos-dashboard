@@ -127,12 +127,29 @@
 
 .InputsLineItem
     display: grid
-    grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(120px, 0.7fr)) auto
+    grid-template-columns: auto minmax(0, 1.2fr) repeat(2, minmax(120px, 0.7fr)) auto
     gap: 12px
     align-items: end
     padding: 14px
     border-radius: 16px
     background: rgba(255, 255, 255, 0.04)
+
+.InputsLineItem--disabled
+    opacity: 0.62
+
+.InputsLineItem__toggle
+    display: flex
+    flex-direction: column
+    gap: 6px
+    align-self: center
+    color: rgba(255, 255, 255, 0.78)
+    font-size: 13px
+    font-weight: 600
+
+    input
+        width: 18px
+        height: 18px
+        margin: 0
 
 .InputsLineItem__remove,
 .InputsLineItems__add
