@@ -12,6 +12,7 @@ test("renders navigation and the default inputs page", () => {
   expect(screen.getByRole("heading", { name: "Inputs" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Expenses" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Income" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Goals" })).toBeInTheDocument();
 });
 
 test("renders the income gap matrix on the analytics page", () => {
@@ -119,6 +120,7 @@ test("switches between expenses and income input views", () => {
 
   expect(screen.getByText("Fixed Monthly Expenses")).toBeInTheDocument();
   expect(screen.queryByText("Restaurant Income")).not.toBeInTheDocument();
+  expect(screen.queryByText("Savings Rate")).not.toBeInTheDocument();
 
   fireEvent.click(screen.getByRole("button", { name: "Income" }));
 
@@ -126,9 +128,21 @@ test("switches between expenses and income input views", () => {
   expect(screen.queryByText("Fixed Monthly Expenses")).not.toBeInTheDocument();
 });
 
+test("switches to the goals input view", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Goals" }));
+
+  expect(screen.getByRole("heading", { name: "Goals" })).toBeInTheDocument();
+  expect(screen.getByLabelText("Savings Rate")).toBeInTheDocument();
+  expect(screen.queryByText("Fixed Monthly Expenses")).not.toBeInTheDocument();
+  expect(screen.queryByText("Restaurant Income")).not.toBeInTheDocument();
+});
+
 test("switches goal rate basis from the inputs UI", () => {
   render(<App />);
 
+  fireEvent.click(screen.getByRole("button", { name: "Goals" }));
   fireEvent.click(screen.getByRole("radio", { name: "Actual Income" }));
   fireEvent.click(screen.getByText("Analytics"));
 

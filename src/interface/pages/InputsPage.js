@@ -448,6 +448,13 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                 >
                     Income
                 </button>
+                <button
+                    className={`InputsPage__viewButton ${selectedInputsView === "Goals" ? "selected" : ""}`}
+                    onClick={() => setSelectedInputsView("Goals")}
+                    type="button"
+                >
+                    Goals
+                </button>
             </div>
 
             {selectedInputsView === "Expenses" && (
@@ -671,60 +678,6 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                         </div>
                     )}
                     </section>
-
-                    <InputsSection
-                        hint="Set savings and investing as percentages, then choose what those percentages should be based on."
-                        title="Goals"
-                    >
-                        <div className="InputsFieldGrid">
-                            <Field
-                                inputMode="decimal"
-                                label="Savings Rate"
-                                onChange={(value) => updateGoal("savingsRate", value)}
-                                parseValue={parsePercent}
-                                type="text"
-                                value={planInput.goals.savingsRate}
-                                toDisplayValue={(value) => `${toDisplayPercent(value)}%`}
-                            />
-                            <Field
-                                inputMode="decimal"
-                                label="Investing Rate"
-                                onChange={(value) => updateGoal("investingRate", value)}
-                                parseValue={parsePercent}
-                                type="text"
-                                value={planInput.goals.investingRate}
-                                toDisplayValue={(value) => `${toDisplayPercent(value)}%`}
-                            />
-                        </div>
-                        <div className="InputsGoalBasis">
-                            <span className="InputsGoalBasis__label">Rate Basis</span>
-                            <div
-                                aria-label="Goal Rate Basis"
-                                className="InputsPage__viewToggle"
-                                role="radiogroup"
-                            >
-                                <button
-                                    aria-checked={planInput.goals.rateBasis === "required_income"}
-                                    className={`InputsPage__viewButton ${planInput.goals.rateBasis === "required_income" ? "selected" : ""}`}
-                                    onClick={() => updateGoal("rateBasis", "required_income")}
-                                    role="radio"
-                                    type="button"
-                                >
-                                    Required Income
-                                </button>
-                                <button
-                                    aria-checked={planInput.goals.rateBasis === "actual_income"}
-                                    className={`InputsPage__viewButton ${planInput.goals.rateBasis === "actual_income" ? "selected" : ""}`}
-                                    onClick={() => updateGoal("rateBasis", "actual_income")}
-                                    role="radio"
-                                    type="button"
-                                >
-                                    Actual Income
-                                </button>
-                            </div>
-                            <p className="InputsGoalBasis__hint">{goalRateBasisDescription}</p>
-                        </div>
-                    </InputsSection>
                 </div>
             )}
 
@@ -820,6 +773,64 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                                 onChange={(value) => updateRestaurantAssumption("serverHourly", "strong", value)}
                                 value={restaurantSource.assumptions.serverHourly.strong}
                             />
+                        </div>
+                    </InputsSection>
+                </div>
+            )}
+
+            {selectedInputsView === "Goals" && (
+                <div className="InputsPage__grid">
+                    <InputsSection
+                        hint="Set savings and investing as percentages, then choose what those percentages should be based on."
+                        title="Goals"
+                    >
+                        <div className="InputsFieldGrid">
+                            <Field
+                                inputMode="decimal"
+                                label="Savings Rate"
+                                onChange={(value) => updateGoal("savingsRate", value)}
+                                parseValue={parsePercent}
+                                type="text"
+                                value={planInput.goals.savingsRate}
+                                toDisplayValue={(value) => `${toDisplayPercent(value)}%`}
+                            />
+                            <Field
+                                inputMode="decimal"
+                                label="Investing Rate"
+                                onChange={(value) => updateGoal("investingRate", value)}
+                                parseValue={parsePercent}
+                                type="text"
+                                value={planInput.goals.investingRate}
+                                toDisplayValue={(value) => `${toDisplayPercent(value)}%`}
+                            />
+                        </div>
+                        <div className="InputsGoalBasis">
+                            <span className="InputsGoalBasis__label">Rate Basis</span>
+                            <div
+                                aria-label="Goal Rate Basis"
+                                className="InputsPage__viewToggle"
+                                role="radiogroup"
+                            >
+                                <button
+                                    aria-checked={planInput.goals.rateBasis === "required_income"}
+                                    className={`InputsPage__viewButton ${planInput.goals.rateBasis === "required_income" ? "selected" : ""}`}
+                                    onClick={() => updateGoal("rateBasis", "required_income")}
+                                    role="radio"
+                                    type="button"
+                                >
+                                    Required Income
+                                </button>
+                                <button
+                                    aria-checked={planInput.goals.rateBasis === "actual_income"}
+                                    className={`InputsPage__viewButton ${planInput.goals.rateBasis === "actual_income" ? "selected" : ""}`}
+                                    onClick={() => updateGoal("rateBasis", "actual_income")}
+                                    role="radio"
+                                    type="button"
+                                >
+                                    Actual Income
+                                </button>
+                            </div>
+                            <p className="InputsGoalBasis__hint">{goalRateBasisDescription}</p>
                         </div>
                     </InputsSection>
                 </div>
