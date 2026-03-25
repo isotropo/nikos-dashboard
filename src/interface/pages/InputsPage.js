@@ -362,6 +362,10 @@ const InputsPage = ({ planInput, setPlanInput }) =>
         }));
     }
 
+    const goalRateBasisDescription = planInput.goals.rateBasis === "actual_income"
+        ? "Percentages are applied to the income projected from your current work setup."
+        : "Percentages are applied to the income target the plan needs to work.";
+
     const updateWorkProfile = (profileKey, key, value) =>
     {
         updatePlanInput((current) => ({
@@ -669,7 +673,7 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                     </section>
 
                     <InputsSection
-                        hint="For now goals are modeled as percentages of income. We can later support fixed monthly target amounts too."
+                        hint="Set savings and investing as percentages, then choose what those percentages should be based on."
                         title="Goals"
                     >
                         <div className="InputsFieldGrid">
@@ -691,6 +695,34 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                                 value={planInput.goals.investingRate}
                                 toDisplayValue={(value) => `${toDisplayPercent(value)}%`}
                             />
+                        </div>
+                        <div className="InputsGoalBasis">
+                            <span className="InputsGoalBasis__label">Rate Basis</span>
+                            <div
+                                aria-label="Goal Rate Basis"
+                                className="InputsPage__viewToggle"
+                                role="radiogroup"
+                            >
+                                <button
+                                    aria-checked={planInput.goals.rateBasis === "required_income"}
+                                    className={`InputsPage__viewButton ${planInput.goals.rateBasis === "required_income" ? "selected" : ""}`}
+                                    onClick={() => updateGoal("rateBasis", "required_income")}
+                                    role="radio"
+                                    type="button"
+                                >
+                                    Required Income
+                                </button>
+                                <button
+                                    aria-checked={planInput.goals.rateBasis === "actual_income"}
+                                    className={`InputsPage__viewButton ${planInput.goals.rateBasis === "actual_income" ? "selected" : ""}`}
+                                    onClick={() => updateGoal("rateBasis", "actual_income")}
+                                    role="radio"
+                                    type="button"
+                                >
+                                    Actual Income
+                                </button>
+                            </div>
+                            <p className="InputsGoalBasis__hint">{goalRateBasisDescription}</p>
                         </div>
                     </InputsSection>
                 </div>

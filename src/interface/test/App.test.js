@@ -126,6 +126,15 @@ test("switches between expenses and income input views", () => {
   expect(screen.queryByText("Fixed Monthly Expenses")).not.toBeInTheDocument();
 });
 
+test("switches goal rate basis from the inputs UI", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByRole("radio", { name: "Actual Income" }));
+  fireEvent.click(screen.getByText("Analytics"));
+
+  expect(screen.getAllByText("$3,668").length).toBeGreaterThan(0);
+});
+
 test("supports goal rates based on actual projected income", () => {
   const actualIncomePlanInput = {
     ...examplePlanInput,
