@@ -8,6 +8,8 @@ test("renders navigation and the default inputs page", () => {
   expect(screen.getByText("Analytics")).toBeInTheDocument();
   expect(screen.getByText("About")).toBeInTheDocument();
   expect(screen.getByRole("heading", { name: "Inputs" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Expenses" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Income" })).toBeInTheDocument();
 });
 
 test("renders the income gap matrix on the analytics page", () => {
@@ -98,4 +100,16 @@ test("adds an irregular expense and updates analytics through normalization", ()
   fireEvent.click(screen.getByText("Analytics"));
 
   expect(screen.getAllByText("$2,665").length).toBeGreaterThan(0);
+});
+
+test("switches between expenses and income input views", () => {
+  render(<App />);
+
+  expect(screen.getByText("Fixed Monthly Expenses")).toBeInTheDocument();
+  expect(screen.queryByText("Restaurant Income")).not.toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Income" }));
+
+  expect(screen.getByText("Restaurant Income")).toBeInTheDocument();
+  expect(screen.queryByText("Fixed Monthly Expenses")).not.toBeInTheDocument();
 });

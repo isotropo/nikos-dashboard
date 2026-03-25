@@ -91,6 +91,7 @@ const InputsSection = ({ children, hint, title }) =>
 
 const InputsPage = ({ planInput, setPlanInput }) =>
 {
+    const [selectedInputsView, setSelectedInputsView] = useState("Expenses");
     const [fixedExpensesExpanded, setFixedExpensesExpanded] = useState(true);
     const [variableExpensesExpanded, setVariableExpensesExpanded] = useState(true);
     const [irregularExpensesExpanded, setIrregularExpensesExpanded] = useState(true);
@@ -366,14 +367,32 @@ const InputsPage = ({ planInput, setPlanInput }) =>
             <header className="InputsPage__header">
                 <h1>Inputs</h1>
                 <p>
-                    Edit the raw plan inputs here. The analytics page should respond
-                    to these values directly, so we only store user-authored facts
-                    and assumptions, not derived totals.
+                    Define what your month needs to cover, then define how you
+                    actually work and earn. The analytics page responds directly
+                    to these raw inputs.
                 </p>
             </header>
 
-            <div className="InputsPage__grid">
-                <section className="InputsSection">
+            <div className="InputsPage__viewToggle">
+                <button
+                    className={`InputsPage__viewButton ${selectedInputsView === "Expenses" ? "selected" : ""}`}
+                    onClick={() => setSelectedInputsView("Expenses")}
+                    type="button"
+                >
+                    Expenses
+                </button>
+                <button
+                    className={`InputsPage__viewButton ${selectedInputsView === "Income" ? "selected" : ""}`}
+                    onClick={() => setSelectedInputsView("Income")}
+                    type="button"
+                >
+                    Income
+                </button>
+            </div>
+
+            {selectedInputsView === "Expenses" && (
+                <div className="InputsPage__grid">
+                    <section className="InputsSection">
                     <button
                         className="InputsSection__toggle"
                         onClick={() => setFixedExpensesExpanded((current) => !current)}
@@ -428,9 +447,9 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                             </button>
                         </div>
                     )}
-                </section>
+                    </section>
 
-                <section className="InputsSection">
+                    <section className="InputsSection">
                     <button
                         className="InputsSection__toggle"
                         onClick={() => setVariableExpensesExpanded((current) => !current)}
@@ -491,9 +510,9 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                             </button>
                         </div>
                     )}
-                </section>
+                    </section>
 
-                <section className="InputsSection">
+                    <section className="InputsSection">
                     <button
                         className="InputsSection__toggle"
                         onClick={() => setIrregularExpensesExpanded((current) => !current)}
@@ -555,127 +574,132 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                             </button>
                         </div>
                     )}
-                </section>
+                    </section>
 
-                <InputsSection
-                    hint="These are stored as rates, so 10% is entered as 0.10."
-                    title="Goals"
-                >
-                    <div className="InputsFieldGrid">
-                        <Field
-                            inputMode="decimal"
-                            label="Savings Rate"
-                            onChange={(value) => updateGoal("savingsRate", value)}
-                            parseValue={parsePercent}
-                            type="text"
-                            value={planInput.goals.savingsRate}
-                            toDisplayValue={(value) => `${toDisplayPercent(value)}%`}
-                        />
-                        <Field
-                            inputMode="decimal"
-                            label="Investing Rate"
-                            onChange={(value) => updateGoal("investingRate", value)}
-                            parseValue={parsePercent}
-                            type="text"
-                            value={planInput.goals.investingRate}
-                            toDisplayValue={(value) => `${toDisplayPercent(value)}%`}
-                        />
-                    </div>
-                </InputsSection>
+                    <InputsSection
+                        hint="For now goals are modeled as percentages of income. We can later support fixed monthly target amounts too."
+                        title="Goals"
+                    >
+                        <div className="InputsFieldGrid">
+                            <Field
+                                inputMode="decimal"
+                                label="Savings Rate"
+                                onChange={(value) => updateGoal("savingsRate", value)}
+                                parseValue={parsePercent}
+                                type="text"
+                                value={planInput.goals.savingsRate}
+                                toDisplayValue={(value) => `${toDisplayPercent(value)}%`}
+                            />
+                            <Field
+                                inputMode="decimal"
+                                label="Investing Rate"
+                                onChange={(value) => updateGoal("investingRate", value)}
+                                parseValue={parsePercent}
+                                type="text"
+                                value={planInput.goals.investingRate}
+                                toDisplayValue={(value) => `${toDisplayPercent(value)}%`}
+                            />
+                        </div>
+                    </InputsSection>
+                </div>
+            )}
 
-                <InputsSection
-                    hint="Work profiles represent how much you choose to work, separate from how well those shifts pay."
-                    title="Work Profiles"
-                >
-                    <div className="InputsFieldGrid">
-                        {Object.entries(planInput.workProfiles).map(([profileKey, profile]) => (
-                            <div className="InputsFieldGrid InputsField--full" key={profileKey}>
-                                <Field
-                                    label={`${profileKey} Shifts / Week`}
-                                    onChange={(value) => updateWorkProfile(profileKey, "shiftsPerWeek", value)}
-                                    value={profile.shiftsPerWeek}
-                                />
-                                <Field
-                                    label={`${profileKey} Hours / Shift`}
-                                    onChange={(value) => updateWorkProfile(profileKey, "workedHoursPerShift", value)}
-                                    value={profile.workedHoursPerShift}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </InputsSection>
+            {selectedInputsView === "Income" && (
+                <div className="InputsPage__grid">
+                    <InputsSection
+                        hint="Work profiles represent how much you choose to work, separate from how well those shifts pay."
+                        title="Work Profiles"
+                    >
+                        <div className="InputsFieldGrid">
+                            {Object.entries(planInput.workProfiles).map(([profileKey, profile]) => (
+                                <div className="InputsFieldGrid InputsField--full" key={profileKey}>
+                                    <Field
+                                        label={`${profileKey} Shifts / Week`}
+                                        onChange={(value) => updateWorkProfile(profileKey, "shiftsPerWeek", value)}
+                                        value={profile.shiftsPerWeek}
+                                    />
+                                    <Field
+                                        label={`${profileKey} Hours / Shift`}
+                                        onChange={(value) => updateWorkProfile(profileKey, "workedHoursPerShift", value)}
+                                        value={profile.workedHoursPerShift}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </InputsSection>
 
-                <InputsSection
-                    hint="This keeps the current model honest about feasibility without introducing full scheduling logic yet."
-                    title="Constraints"
-                >
-                    <div className="InputsFieldGrid">
-                        <Field
-                            label="Max Worked Hours / Week"
-                            onChange={(value) => updateConstraint("maxWorkedHoursPerWeek", value)}
-                            value={planInput.constraints.maxWorkedHoursPerWeek}
-                        />
-                    </div>
-                </InputsSection>
+                    <InputsSection
+                        hint="This keeps the current model honest about feasibility without introducing full scheduling logic yet."
+                        title="Constraints"
+                    >
+                        <div className="InputsFieldGrid">
+                            <Field
+                                label="Max Worked Hours / Week"
+                                onChange={(value) => updateConstraint("maxWorkedHoursPerWeek", value)}
+                                value={planInput.constraints.maxWorkedHoursPerWeek}
+                            />
+                        </div>
+                    </InputsSection>
 
-                <InputsSection
-                    hint="These are the restaurant pay assumptions currently feeding the analysis matrix."
-                    title="Restaurant Income"
-                >
-                    <div className="InputsFieldGrid">
-                        <Field
-                            label="Base Hourly Rate"
-                            onChange={(value) => updateRestaurantField("baseHourlyRate", value)}
-                            value={restaurantSource.baseHourlyRate}
-                        />
-                        <Field
-                            label="Meal Violations / Shift Expected"
-                            onChange={(value) => updateRestaurantAssumption("mealViolationsPerShift", "expected", value)}
-                            value={restaurantSource.assumptions.mealViolationsPerShift.expected}
-                        />
-                        <Field
-                            label="Meal Violations / Shift Conservative"
-                            onChange={(value) => updateRestaurantAssumption("mealViolationsPerShift", "conservative", value)}
-                            value={restaurantSource.assumptions.mealViolationsPerShift.conservative}
-                        />
-                        <Field
-                            label="Meal Violations / Shift Strong"
-                            onChange={(value) => updateRestaurantAssumption("mealViolationsPerShift", "strong", value)}
-                            value={restaurantSource.assumptions.mealViolationsPerShift.strong}
-                        />
-                        <Field
-                            label="Serving Share Expected"
-                            onChange={(value) => updateRestaurantAssumption("servingShare", "expected", value)}
-                            value={restaurantSource.assumptions.servingShare.expected}
-                        />
-                        <Field
-                            label="Serving Share Conservative"
-                            onChange={(value) => updateRestaurantAssumption("servingShare", "conservative", value)}
-                            value={restaurantSource.assumptions.servingShare.conservative}
-                        />
-                        <Field
-                            label="Serving Share Strong"
-                            onChange={(value) => updateRestaurantAssumption("servingShare", "strong", value)}
-                            value={restaurantSource.assumptions.servingShare.strong}
-                        />
-                        <Field
-                            label="Server Hourly Expected"
-                            onChange={(value) => updateRestaurantAssumption("serverHourly", "expected", value)}
-                            value={restaurantSource.assumptions.serverHourly.expected}
-                        />
-                        <Field
-                            label="Server Hourly Conservative"
-                            onChange={(value) => updateRestaurantAssumption("serverHourly", "conservative", value)}
-                            value={restaurantSource.assumptions.serverHourly.conservative}
-                        />
-                        <Field
-                            label="Server Hourly Strong"
-                            onChange={(value) => updateRestaurantAssumption("serverHourly", "strong", value)}
-                            value={restaurantSource.assumptions.serverHourly.strong}
-                        />
-                    </div>
-                </InputsSection>
-            </div>
+                    <InputsSection
+                        hint="These are the restaurant pay assumptions currently feeding the analysis matrix."
+                        title="Restaurant Income"
+                    >
+                        <div className="InputsFieldGrid">
+                            <Field
+                                label="Base Hourly Rate"
+                                onChange={(value) => updateRestaurantField("baseHourlyRate", value)}
+                                value={restaurantSource.baseHourlyRate}
+                            />
+                            <Field
+                                label="Meal Violations / Shift Expected"
+                                onChange={(value) => updateRestaurantAssumption("mealViolationsPerShift", "expected", value)}
+                                value={restaurantSource.assumptions.mealViolationsPerShift.expected}
+                            />
+                            <Field
+                                label="Meal Violations / Shift Conservative"
+                                onChange={(value) => updateRestaurantAssumption("mealViolationsPerShift", "conservative", value)}
+                                value={restaurantSource.assumptions.mealViolationsPerShift.conservative}
+                            />
+                            <Field
+                                label="Meal Violations / Shift Strong"
+                                onChange={(value) => updateRestaurantAssumption("mealViolationsPerShift", "strong", value)}
+                                value={restaurantSource.assumptions.mealViolationsPerShift.strong}
+                            />
+                            <Field
+                                label="Serving Share Expected"
+                                onChange={(value) => updateRestaurantAssumption("servingShare", "expected", value)}
+                                value={restaurantSource.assumptions.servingShare.expected}
+                            />
+                            <Field
+                                label="Serving Share Conservative"
+                                onChange={(value) => updateRestaurantAssumption("servingShare", "conservative", value)}
+                                value={restaurantSource.assumptions.servingShare.conservative}
+                            />
+                            <Field
+                                label="Serving Share Strong"
+                                onChange={(value) => updateRestaurantAssumption("servingShare", "strong", value)}
+                                value={restaurantSource.assumptions.servingShare.strong}
+                            />
+                            <Field
+                                label="Server Hourly Expected"
+                                onChange={(value) => updateRestaurantAssumption("serverHourly", "expected", value)}
+                                value={restaurantSource.assumptions.serverHourly.expected}
+                            />
+                            <Field
+                                label="Server Hourly Conservative"
+                                onChange={(value) => updateRestaurantAssumption("serverHourly", "conservative", value)}
+                                value={restaurantSource.assumptions.serverHourly.conservative}
+                            />
+                            <Field
+                                label="Server Hourly Strong"
+                                onChange={(value) => updateRestaurantAssumption("serverHourly", "strong", value)}
+                                value={restaurantSource.assumptions.serverHourly.strong}
+                            />
+                        </div>
+                    </InputsSection>
+                </div>
+            )}
 
             <div className="InputsPage__footer">
                 This is the first pass of the inputs page: a direct editing surface
