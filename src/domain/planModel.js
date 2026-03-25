@@ -1,6 +1,7 @@
 export const EXPENSE_SCENARIOS = ["low", "expected", "high"];
 export const INCOME_SCENARIOS = ["conservative", "expected", "strong"];
 export const WORK_PROFILES = ["conservative", "expected", "max"];
+export const GOAL_RATE_BASES = ["required_income", "actual_income"];
 
 /**
  * A value that can stay fixed for now, but later expose scenario-specific
@@ -90,7 +91,8 @@ export const WORK_PROFILES = ["conservative", "expected", "max"];
  * }} expenses
  * @property {{
  *   savingsRate: number,
- *   investingRate: number
+ *   investingRate: number,
+ *   rateBasis: "required_income" | "actual_income"
  * }} goals
  * @property {{
  *   conservative: WorkProfile,
@@ -173,6 +175,7 @@ export const examplePlanInput = {
   goals: {
     savingsRate: 0.1,
     investingRate: 0.2,
+    rateBasis: "required_income",
   },
   workProfiles: {
     conservative: {
