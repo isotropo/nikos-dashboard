@@ -146,7 +146,19 @@ test("switches goal rate basis from the inputs UI", () => {
   fireEvent.click(screen.getByRole("radio", { name: "Actual Income" }));
   fireEvent.click(screen.getByText("Analytics"));
 
-  expect(screen.getAllByText("$3,668").length).toBeGreaterThan(0);
+  expect(screen.getAllByText("$3,674").length).toBeGreaterThan(0);
+});
+
+test("updates analytics from the server hourly slider adapter", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Income" }));
+  fireEvent.change(screen.getByLabelText("Server Hourly Expected Slider"), {
+    target: { value: "50" },
+  });
+  fireEvent.click(screen.getByText("Analytics"));
+
+  expect(screen.getAllByText("$3,839").length).toBeGreaterThan(0);
 });
 
 test("supports goal rates based on actual projected income", () => {

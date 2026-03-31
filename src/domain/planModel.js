@@ -254,7 +254,7 @@ export const examplePlanInput = {
           strong: 0.45,
         },
         serverHourly: {
-          expected: 42,
+          expected: 42.5,
           low: null,
           high: null,
           conservative: 30,

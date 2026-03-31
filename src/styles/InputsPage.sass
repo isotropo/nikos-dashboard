@@ -183,6 +183,74 @@
     font-size: 14px
     line-height: 1.45
 
+.InputsSliderPanel
+    display: flex
+    flex-direction: column
+    gap: 16px
+    padding: 16px
+    border-radius: 16px
+    background: rgba(255, 255, 255, 0.04)
+
+.InputsSliderPanel__header
+    display: grid
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 220px)
+    gap: 16px
+    align-items: start
+
+    h3
+        margin: 0 0 6px 0
+        font-size: 18px
+
+    p
+        margin: 0
+        color: rgba(255, 255, 255, 0.62)
+        font-size: 14px
+        line-height: 1.45
+
+.InputsSliderPanel__scale
+    display: flex
+    justify-content: space-between
+    color: rgba(255, 255, 255, 0.62)
+    font-size: 13px
+
+.InputsSliderControl
+    display: flex
+    flex-direction: column
+    gap: 10px
+
+    input[type="range"]
+        width: 100%
+
+.InputsSliderControl__labelRow
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 12px
+    color: rgba(255, 255, 255, 0.78)
+    font-size: 14px
+
+.InputsSliderControl__value
+    transition: color 120ms ease
+
+.InputsSliderControl__value--derived
+    color: #a7bed7
+
+.InputsSliderControl__value--manual
+    color: #f0fbff
+
+.InputsSliderControl__reset
+    align-self: flex-start
+    border: 1px solid rgba(255, 255, 255, 0.14)
+    border-radius: 999px
+    background: rgba(255, 255, 255, 0.04)
+    color: #fff
+    padding: 8px 12px
+    font: inherit
+    cursor: pointer
+
+    &:hover
+        background: rgba(255, 255, 255, 0.08)
+
 .InputsPage__footer
     color: rgba(255, 255, 255, 0.58)
     font-size: 13px
@@ -194,6 +262,9 @@
 
 @media (max-width: 700px)
     .InputsFieldGrid
+        grid-template-columns: 1fr
+
+    .InputsSliderPanel__header
         grid-template-columns: 1fr
 
     .InputsLineItem

@@ -56,6 +56,8 @@ const formatCurrency = (value) =>
 const sum = (values) => values.reduce((total, value) => total + value, 0);
 
 const isItemEnabled = (item) => item.isEnabled !== false;
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+const getMidpoint = (low, high) => (low + high) / 2;
 
 const Field = ({
     ariaLabel,
@@ -100,6 +102,8 @@ const InputsPage = ({ planInput, setPlanInput }) =>
     const [variableExpensesExpanded, setVariableExpensesExpanded] = useState(true);
     const [irregularExpensesExpanded, setIrregularExpensesExpanded] = useState(true);
     const restaurantSource = planInput.incomeSources[0];
+    const [serverHourlyRangeMax, setServerHourlyRangeMax] = useState(100);
+    const [serverHourlyExpectedMode, setServerHourlyExpectedMode] = useState("derived");
     const fixedExpensesTotal = sum(
         planInput.expenses.fixedLineItems
             .filter(isItemEnabled)
@@ -120,6 +124,13 @@ const InputsPage = ({ planInput, setPlanInput }) =>
             .filter(isItemEnabled)
             .map((item) => item.amount / item.everyMonths)
     );
+    const serverHourlyRangeMin = restaurantSource.baseHourlyRate;
+    const serverHourlyConservative = restaurantSource.assumptions.serverHourly.conservative;
+    const serverHourlyStrong = restaurantSource.assumptions.serverHourly.strong;
+    const serverHourlyMidpoint = getMidpoint(serverHourlyConservative, serverHourlyStrong);
+    const serverHourlyExpectedValue = serverHourlyExpectedMode === "derived"
+        ? serverHourlyMidpoint
+        : restaurantSource.assumptions.serverHourly.expected;
 
     const updatePlanInput = (updater) =>
     {
@@ -420,6 +431,106 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                     : source
             ),
         }));
+    }
+
+    const updateServerHourlyValues = ({
+        conservative = serverHourlyConservative,
+        expected = restaurantSource.assumptions.serverHourly.expected,
+        strong = serverHourlyStrong,
+    }) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            incomeSources: current.incomeSources.map((source) =>
+                source.id === restaurantSource.id
+                    ? {
+                        ...source,
+                        assumptions: {
+                            ...source.assumptions,
+                            serverHourly: {
+                                ...source.assumptions.serverHourly,
+                                conservative,
+                                expected,
+                                strong,
+                            },
+                        },
+                    }
+                    : source
+            ),
+        }));
+    }
+
+    const updateServerHourlyConservative = (value) =>
+    {
+        const nextConservative = clamp(value, serverHourlyRangeMin, serverHourlyStrong);
+        const nextExpected = serverHourlyExpectedMode === "derived"
+            ? getMidpoint(nextConservative, serverHourlyStrong)
+            : clamp(
+                restaurantSource.assumptions.serverHourly.expected,
+                nextConservative,
+                serverHourlyStrong
+            );
+
+        updateServerHourlyValues({
+            conservative: nextConservative,
+            expected: nextExpected,
+        });
+    }
+
+    const updateServerHourlyStrong = (value) =>
+    {
+        const nextStrong = clamp(value, serverHourlyConservative, serverHourlyRangeMax);
+        const nextExpected = serverHourlyExpectedMode === "derived"
+            ? getMidpoint(serverHourlyConservative, nextStrong)
+            : clamp(
+                restaurantSource.assumptions.serverHourly.expected,
+                serverHourlyConservative,
+                nextStrong
+            );
+
+        updateServerHourlyValues({
+            expected: nextExpected,
+            strong: nextStrong,
+        });
+    }
+
+    const updateServerHourlyExpected = (value) =>
+    {
+        const nextExpected = clamp(value, serverHourlyConservative, serverHourlyStrong);
+
+        setServerHourlyExpectedMode("manual");
+        updateServerHourlyValues({
+            expected: nextExpected,
+        });
+    }
+
+    const resetServerHourlyExpected = () =>
+    {
+        setServerHourlyExpectedMode("derived");
+        updateServerHourlyValues({
+            expected: serverHourlyMidpoint,
+        });
+    }
+
+    const updateServerHourlyRangeMaxValue = (value) =>
+    {
+        const nextRangeMax = Math.max(serverHourlyRangeMin, value);
+        const nextStrong = clamp(serverHourlyStrong, serverHourlyRangeMin, nextRangeMax);
+        const nextConservative = clamp(serverHourlyConservative, serverHourlyRangeMin, nextStrong);
+        const nextExpected = serverHourlyExpectedMode === "derived"
+            ? getMidpoint(nextConservative, nextStrong)
+            : clamp(
+                restaurantSource.assumptions.serverHourly.expected,
+                nextConservative,
+                nextStrong
+            );
+
+        setServerHourlyRangeMax(nextRangeMax);
+        updateServerHourlyValues({
+            conservative: nextConservative,
+            expected: nextExpected,
+            strong: nextStrong,
+        });
     }
 
     return <Page>
@@ -758,21 +869,96 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                                 onChange={(value) => updateRestaurantAssumption("servingShare", "strong", value)}
                                 value={restaurantSource.assumptions.servingShare.strong}
                             />
-                            <Field
-                                label="Server Hourly Expected"
-                                onChange={(value) => updateRestaurantAssumption("serverHourly", "expected", value)}
-                                value={restaurantSource.assumptions.serverHourly.expected}
-                            />
-                            <Field
-                                label="Server Hourly Conservative"
-                                onChange={(value) => updateRestaurantAssumption("serverHourly", "conservative", value)}
-                                value={restaurantSource.assumptions.serverHourly.conservative}
-                            />
-                            <Field
-                                label="Server Hourly Strong"
-                                onChange={(value) => updateRestaurantAssumption("serverHourly", "strong", value)}
-                                value={restaurantSource.assumptions.serverHourly.strong}
-                            />
+                            <div className="InputsSliderPanel InputsField--full">
+                                <div className="InputsSliderPanel__header">
+                                    <div>
+                                        <h3>Server Hourly</h3>
+                                        <p>
+                                            Base hourly rate sets the floor. Use the sliders to place conservative,
+                                            expected, and strong server rates within a visible range.
+                                        </p>
+                                    </div>
+                                    <Field
+                                        ariaLabel="Server Hourly Range Max"
+                                        label="Range Max"
+                                        onChange={updateServerHourlyRangeMaxValue}
+                                        value={serverHourlyRangeMax}
+                                    />
+                                </div>
+
+                                <div className="InputsSliderPanel__scale">
+                                    <span>{formatCurrency(serverHourlyRangeMin)}</span>
+                                    <span>{formatCurrency(serverHourlyRangeMax)}</span>
+                                </div>
+
+                                <div className="InputsSliderControl">
+                                    <div className="InputsSliderControl__labelRow">
+                                        <span>Conservative</span>
+                                        <strong>{formatCurrency(serverHourlyConservative)}</strong>
+                                    </div>
+                                    <input
+                                        aria-label="Server Hourly Conservative Slider"
+                                        max={serverHourlyStrong}
+                                        min={serverHourlyRangeMin}
+                                        onChange={(event) => updateServerHourlyConservative(Number(event.target.value))}
+                                        step="0.5"
+                                        type="range"
+                                        value={serverHourlyConservative}
+                                    />
+                                </div>
+
+                                <div className="InputsSliderControl">
+                                    <div className="InputsSliderControl__labelRow">
+                                        <span>
+                                            Expected
+                                            {serverHourlyExpectedMode === "derived" ? " (Auto midpoint)" : " (Manual)"}
+                                        </span>
+                                        <strong
+                                            className={`InputsSliderControl__value ${
+                                                serverHourlyExpectedMode === "derived"
+                                                    ? "InputsSliderControl__value--derived"
+                                                    : "InputsSliderControl__value--manual"
+                                            }`}
+                                        >
+                                            {formatCurrency(serverHourlyExpectedValue)}
+                                        </strong>
+                                    </div>
+                                    <input
+                                        aria-label="Server Hourly Expected Slider"
+                                        max={serverHourlyStrong}
+                                        min={serverHourlyConservative}
+                                        onChange={(event) => updateServerHourlyExpected(Number(event.target.value))}
+                                        step="0.5"
+                                        type="range"
+                                        value={serverHourlyExpectedValue}
+                                    />
+                                    {serverHourlyExpectedMode === "manual" && (
+                                        <button
+                                            className="InputsSliderControl__reset"
+                                            onClick={resetServerHourlyExpected}
+                                            type="button"
+                                        >
+                                            Reset To Midpoint
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="InputsSliderControl">
+                                    <div className="InputsSliderControl__labelRow">
+                                        <span>Strong</span>
+                                        <strong>{formatCurrency(serverHourlyStrong)}</strong>
+                                    </div>
+                                    <input
+                                        aria-label="Server Hourly Strong Slider"
+                                        max={serverHourlyRangeMax}
+                                        min={serverHourlyConservative}
+                                        onChange={(event) => updateServerHourlyStrong(Number(event.target.value))}
+                                        step="0.5"
+                                        type="range"
+                                        value={serverHourlyStrong}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </InputsSection>
                 </div>
