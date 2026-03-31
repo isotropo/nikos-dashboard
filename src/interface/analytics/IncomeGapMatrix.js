@@ -18,6 +18,12 @@ const WORK_PROFILE_LABELS = {
     max: "Max Work",
 };
 
+const ISOLATION_LABELS = {
+    conservative: "Conservative",
+    expected: "Expected",
+    strong: "Strong",
+};
+
 const formatPercent = (value) =>
 {
     return `${(value * 100).toFixed(value * 100 % 1 === 0 ? 0 : 1)}%`;
@@ -192,6 +198,44 @@ const MobileIncomeCarousel = ({ matrix }) =>
     </div>
 }
 
+const ServingShareIsolationControls = ({
+    onToggleServingShareScenarioOverride,
+    servingShareScenarioOverride,
+}) =>
+{
+    return <section className="ServingShareIsolation">
+        <header className="ServingShareIsolation__header">
+            <h2>Serving Share Isolation</h2>
+            <p>
+                Freeze serving share across all income columns to study it in
+                isolation. Tap the same option again to return to
+                scenario-driven mode.
+            </p>
+        </header>
+
+        <div className="ServingShareIsolation__controls">
+            {Object.entries(ISOLATION_LABELS).map(([scenario, label]) =>
+                <button
+                    className={`ServingShareIsolation__button ${
+                        servingShareScenarioOverride === scenario ? "selected" : ""
+                    }`}
+                    key={scenario}
+                    onClick={() => onToggleServingShareScenarioOverride(scenario)}
+                    type="button"
+                >
+                    {label}
+                </button>
+            )}
+        </div>
+
+        <div className="ServingShareIsolation__status">
+            {servingShareScenarioOverride
+                ? `Serving share frozen to ${ISOLATION_LABELS[servingShareScenarioOverride]}.`
+                : "Serving share is scenario-driven."}
+        </div>
+    </section>
+}
+
 const WorkAssumptionsSummary = ({ planInput, selectedWorkProfile }) =>
 {
     const workProfile = planInput.workProfiles[selectedWorkProfile];
@@ -236,7 +280,10 @@ const WorkAssumptionsSummary = ({ planInput, selectedWorkProfile }) =>
     </section>
 }
 
-const IncomeAssumptionsSummary = ({ planInput }) =>
+const IncomeAssumptionsSummary = ({
+    planInput,
+    servingShareScenarioOverride,
+}) =>
 {
     const restaurantSource = planInput.incomeSources[0];
 
@@ -266,7 +313,13 @@ const IncomeAssumptionsSummary = ({ planInput }) =>
                     </div>
                     <div className="IncomeAssumptionsSummary__row">
                         <span>Serving Share</span>
-                        <strong>{formatPercent(restaurantSource.assumptions.servingShare[incomeScenario])}</strong>
+                        <strong>
+                            {formatPercent(
+                                restaurantSource.assumptions.servingShare[
+                                    servingShareScenarioOverride ?? incomeScenario
+                                ]
+                            )}
+                        </strong>
                     </div>
                     <div className="IncomeAssumptionsSummary__row">
                         <span>Server Hourly</span>
@@ -278,6 +331,8 @@ const IncomeAssumptionsSummary = ({ planInput }) =>
                     </div>
                     <div className="IncomeAssumptionsSummary__footnote">
                         Base hourly: {formatCurrency(restaurantSource.baseHourlyRate)}
+                        {servingShareScenarioOverride &&
+                            ` • serving share frozen to ${ISOLATION_LABELS[servingShareScenarioOverride]}`}
                     </div>
                 </section>
             )}
@@ -289,7 +344,9 @@ const IncomeGapMatrix = ({
     planInput,
     matrix,
     onSelectWorkProfile,
+    onToggleServingShareScenarioOverride,
     selectedWorkProfile,
+    servingShareScenarioOverride,
 }) =>
 {
     return <section className="IncomeGapMatrix">
@@ -319,7 +376,15 @@ const IncomeGapMatrix = ({
             selectedWorkProfile={selectedWorkProfile}
         />
 
-        <IncomeAssumptionsSummary planInput={planInput} />
+        <ServingShareIsolationControls
+            onToggleServingShareScenarioOverride={onToggleServingShareScenarioOverride}
+            servingShareScenarioOverride={servingShareScenarioOverride}
+        />
+
+        <IncomeAssumptionsSummary
+            planInput={planInput}
+            servingShareScenarioOverride={servingShareScenarioOverride}
+        />
 
         <div className="IncomeGapMatrix__grid">
             <div className="IncomeGapMatrix__corner">Expense vs Income</div>

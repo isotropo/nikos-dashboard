@@ -22,6 +22,7 @@ test("renders the income gap matrix on the analytics page", () => {
 
   expect(screen.getByText("Income Gap Matrix")).toBeInTheDocument();
   expect(screen.getByText("Work Assumptions")).toBeInTheDocument();
+  expect(screen.getByText("Serving Share Isolation")).toBeInTheDocument();
   expect(screen.getByText("Income Assumptions")).toBeInTheDocument();
   expect(screen.getAllByText("Conservative Income").length).toBeGreaterThan(0);
   expect(screen.getAllByText("Serving Share").length).toBeGreaterThan(0);
@@ -29,6 +30,19 @@ test("renders the income gap matrix on the analytics page", () => {
   expect(screen.getByText("Work Profile: Expected Work")).toBeInTheDocument();
   expect(screen.getByText("Worked Hours / Month")).toBeInTheDocument();
   expect(screen.getAllByText("Hours Capacity Left").length).toBeGreaterThan(0);
+});
+
+test("can freeze and unfreeze serving share in analytics", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByText("Analytics"));
+
+  fireEvent.click(screen.getByRole("button", { name: "Expected" }));
+  expect(screen.getByText("Serving share frozen to Expected.")).toBeInTheDocument();
+  expect(screen.getAllByText("37.5%").length).toBeGreaterThan(1);
+
+  fireEvent.click(screen.getByRole("button", { name: "Expected" }));
+  expect(screen.getByText("Serving share is scenario-driven.")).toBeInTheDocument();
 });
 
 test("switches the matrix when the work profile changes", () => {

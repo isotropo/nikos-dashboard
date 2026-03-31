@@ -91,13 +91,21 @@ const getRequiredIncome = (monthlyExpenses, currentIncome, goals) =>
     return monthlyExpenses / keepRate;
 }
 
-const getRestaurantIncome = (source, incomeScenario, workProfile) =>
+const getEffectiveScenario = (overrideScenario, fallbackScenario) =>
+{
+    return overrideScenario ?? fallbackScenario;
+}
+
+const getRestaurantIncome = (source, incomeScenario, workProfile, overrides = {}) =>
 {
     const shiftsPerMonth = workProfile.shiftsPerWeek * WEEKS_PER_MONTH;
     const workedHoursPerMonth = shiftsPerMonth * workProfile.workedHoursPerShift;
     const mealViolationHoursPerMonth = shiftsPerMonth *
         getScenarioValue(source.assumptions.mealViolationsPerShift, incomeScenario);
-    const servingShare = getScenarioValue(source.assumptions.servingShare, incomeScenario);
+    const servingShare = getScenarioValue(
+        source.assumptions.servingShare,
+        getEffectiveScenario(overrides.servingShareScenario, incomeScenario)
+    );
     const serverHourly = getScenarioValue(source.assumptions.serverHourly, incomeScenario);
     const blendedHourly = (servingShare * serverHourly) +
         ((1 - servingShare) * source.baseHourlyRate);
@@ -110,7 +118,12 @@ const getRestaurantIncome = (source, incomeScenario, workProfile) =>
     };
 }
 
-const getCurrentWorkProfile = (planInput, incomeScenario, selectedWorkProfile) =>
+const getCurrentWorkProfile = (
+    planInput,
+    incomeScenario,
+    selectedWorkProfile,
+    overrides = {}
+) =>
 {
     const workProfile = planInput.workProfiles[selectedWorkProfile];
 
@@ -120,7 +133,12 @@ const getCurrentWorkProfile = (planInput, incomeScenario, selectedWorkProfile) =
         {
             case "restaurant":
             {
-                const income = getRestaurantIncome(source, incomeScenario, workProfile);
+                const income = getRestaurantIncome(
+                    source,
+                    incomeScenario,
+                    workProfile,
+                    overrides
+                );
 
                 return {
                     currentIncome: totals.currentIncome + income.income,
@@ -153,7 +171,8 @@ const getGapHours = (gap, currentWorkedHoursPerMonth, weightedHourlyTotal) =>
 
 export const buildIncomeGapMatrix = (
     planInput,
-    selectedWorkProfile = WORK_PROFILES[1]
+    selectedWorkProfile = WORK_PROFILES[1],
+    overrides = {}
 ) =>
 {
     const cells = [];
@@ -167,7 +186,8 @@ export const buildIncomeGapMatrix = (
             const workProfile = getCurrentWorkProfile(
                 planInput,
                 incomeScenario,
-                selectedWorkProfile
+                selectedWorkProfile,
+                overrides
             );
             const currentIncome = workProfile.currentIncome;
             const requiredIncome = getRequiredIncome(
@@ -212,6 +232,7 @@ export const buildIncomeGapMatrix = (
             expenseScenarios: EXPENSE_SCENARIOS,
             incomeScenarios: INCOME_SCENARIOS,
         },
+        overrides,
         workProfile: selectedWorkProfile,
         cells,
     };

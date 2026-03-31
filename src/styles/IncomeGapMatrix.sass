@@ -77,6 +77,50 @@
     color: rgba(255, 255, 255, 0.58)
     font-size: 13px
 
+.ServingShareIsolation
+    display: flex
+    flex-direction: column
+    gap: 14px
+
+.ServingShareIsolation__header
+    max-width: 760px
+
+    h2
+        margin: 0 0 8px 0
+        font-size: 22px
+
+    p
+        margin: 0
+        color: rgba(255, 255, 255, 0.68)
+        line-height: 1.5
+
+.ServingShareIsolation__controls
+    display: flex
+    gap: 10px
+    flex-wrap: wrap
+
+.ServingShareIsolation__button
+    border: 1px solid rgba(255, 255, 255, 0.14)
+    border-radius: 999px
+    background: rgba(255, 255, 255, 0.04)
+    color: #fff
+    padding: 10px 14px
+    font: inherit
+    cursor: pointer
+    transition: background 120ms ease, border-color 120ms ease
+
+    &:hover
+        background: rgba(255, 255, 255, 0.08)
+        border-color: rgba(255, 255, 255, 0.28)
+
+    &.selected
+        background: rgba(122, 175, 110, 0.24)
+        border-color: rgba(173, 225, 146, 0.45)
+
+.ServingShareIsolation__status
+    color: rgba(255, 255, 255, 0.72)
+    font-size: 14px
+
 .IncomeAssumptionsSummary
     display: flex
     flex-direction: column
