@@ -287,6 +287,13 @@ Current behavior:
 - Work profiles now use an integrated slider for `shiftsPerWeek`, with `expected` defaulting to the rounded midpoint between conservative and max
 - `serverHourly` now uses an adapter-first integrated multi-marker slider in the Income tab while still writing back into the current runtime numeric shape
 - Editing inputs updates the analytics page live through shared app state
+- The mobile shell now uses a sticky top nav and safer viewport/scroll behavior instead of relying on the original `absolute + 100vh` layout
+
+Emerging direction:
+
+- `servingShare` probably belongs to the same unified scenario language as `serverHourly`, rather than living forever as three disconnected numeric inputs
+- The Analytics page will likely need compact assumption summaries so users can see not just outcomes, but the key inputs driving each scenario card
+- Long term, schedule-aware integrations such as Google Calendar, and possibly HotSchedules if practical, could make work-feasibility inputs more grounded in actual scheduled reality
 
 Current limitation:
 
@@ -319,6 +326,7 @@ Mobile behavior:
 - Desktop keeps the full 3x3 matrix
 - Mobile uses a swipeable, native scroll-snap income carousel
 - Work profile selection stays above the analytics view
+- The app shell now collapses into a top sticky nav on smaller screens so page switching remains tappable while the content scrolls
 
 ## Current Shipped State
 
@@ -336,6 +344,7 @@ Recent implemented milestones:
 - A future slider contract for `serverHourly` is now defined in `planModel.js`
 - The Income tab now includes a custom `WorkProfilesSlider` with conservative / expected / max markers on one shared track
 - The Income tab now includes a custom `ServerHourlyRangeSlider` with conservative / expected / strong markers on one shared track
+- The app shell now has a mobile-specific sticky nav and safer viewport-height handling for iOS Safari
 
 Relevant commits:
 
@@ -389,7 +398,9 @@ Current model simplifications:
 - The `serverHourly` slider currently uses an adapter layer rather than the future runtime contract
 - Only `serverHourly` uses the new integrated slider interaction so far
 - Work-profile `shiftsPerWeek` now uses an integrated slider, but doubles and partial-shift behavior are still intentionally deferred
+- Analytics still emphasizes outcomes more than input assumptions, so some scenario effects may feel opaque
 - Work-profile shifts are intentionally treated as whole-shift counts for now
+- Schedule syncing is not implemented; work profiles are still user-authored rather than imported from a calendar or scheduling system
 
 ## Open Product Questions
 
@@ -405,8 +416,10 @@ Questions to revisit later:
 - When should the temporary `serverHourly` adapter be replaced by a full runtime migration to the slider contract?
 - Should the integrated multi-marker slider pattern expand to `servingShare` or other income assumptions?
 - How should the work-profile slider eventually relate to doubles, split shifts, or broader sustainability modeling?
+- What is the clearest way to show the key assumptions behind each analytics scenario card without making the matrix too dense?
 - What is the right editing flow for raw line-item inputs without losing the clean derived-data structure?
 - When should overtime, double meal violations, and schedule availability be introduced?
+- What is the right path for schedule-aware integrations such as Google Calendar or HotSchedules, and when should those move from product vision into implementation?
 
 ## Next Priorities
 

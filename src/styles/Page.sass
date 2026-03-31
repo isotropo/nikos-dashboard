@@ -2,8 +2,17 @@
 
 .Page
     position: relative
+    box-sizing: border-box
     width: calc(100% - ($pageContentPadding * 2))
     height: calc(100% - ($pageContentPadding * 2))
     overflow: hidden auto
     color: #fff
     padding: $pageContentPadding
+
+@media (max-width: 900px)
+    .Page
+        width: 100%
+        height: auto
+        min-height: 0
+        overflow: visible
+        padding: $pageContentPadding $pageContentPadding calc($pageContentPadding + env(safe-area-inset-bottom, 0px))

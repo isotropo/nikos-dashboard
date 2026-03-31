@@ -7,6 +7,9 @@
     width: calc(100% - ($leftButtonPadding * 2))
     color: #fff
     cursor: pointer
+    border: 0
+    font: inherit
+    display: block
 
     &:hover
         background: rgba(#000, 0.5)
@@ -16,3 +19,16 @@
         width: calc(100% - ($leftButtonPadding * 3))
         font-weight: bold
         filter: invert(100%)
+
+@media (max-width: 900px)
+    .LeftButton
+        flex: 1 0 auto
+        min-width: 96px
+        width: auto
+        border-radius: 999px
+        padding: 12px 14px
+        text-align: center
+
+        &.selected
+            width: auto
+            padding-left: 14px

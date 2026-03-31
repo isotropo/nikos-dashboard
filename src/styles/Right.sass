@@ -1,8 +1,14 @@
 @import "./variables"
     
 .Right
-    position: absolute
-    left: $leftWidth
-    top: 0
+    position: relative
+    flex: 1 1 auto
     width: calc(100% - $leftWidth)
-    height: 100%
+    min-width: 0
+    min-height: 100vh
+    min-height: 100dvh
+
+@media (max-width: 900px)
+    .Right
+        width: 100%
+        min-height: 0

@@ -7,10 +7,12 @@ const LeftButton = ({ name, selectedPage, onSelectPage }) =>
         onSelectPage(name)
     }
 
-    return <div className={`LeftButton ${selectedPage === name ? "selected" : ""}`}
-        onClick={_onClick}>
+    return <button
+        className={`LeftButton ${selectedPage === name ? "selected" : ""}`}
+        onClick={_onClick}
+        type="button">
         <span>{name}</span>
-    </div>
+    </button>
 }
 
 export default LeftButton
