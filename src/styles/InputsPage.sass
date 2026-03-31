@@ -300,6 +300,96 @@
     &:hover
         background: rgba(255, 255, 255, 0.08)
 
+.ServingShareRangeSlider
+    display: flex
+    flex-direction: column
+    gap: 16px
+    padding: 16px
+    border-radius: 16px
+    background: rgba(255, 255, 255, 0.04)
+
+.ServingShareRangeSlider__header
+    h3
+        margin: 0 0 6px 0
+        font-size: 18px
+
+    p
+        margin: 0
+        color: rgba(255, 255, 255, 0.62)
+        font-size: 14px
+        line-height: 1.45
+
+.ServingShareRangeSlider__scale
+    display: flex
+    justify-content: space-between
+    color: rgba(255, 255, 255, 0.62)
+    font-size: 13px
+
+.ServingShareRangeSlider__trackWrap
+    padding: 8px 0
+
+.ServingShareRangeSlider__track
+    position: relative
+    height: 8px
+    border-radius: 999px
+    background: rgba(255, 255, 255, 0.14)
+
+.ServingShareRangeSlider__activeRange
+    position: absolute
+    top: 0
+    bottom: 0
+    border-radius: 999px
+    background: linear-gradient(90deg, #7ea36f 0%, #a7d58f 50%, #d8f2c7 100%)
+
+.ServingShareRangeSlider__marker
+    position: absolute
+    top: 50%
+    width: 18px
+    height: 18px
+    border-radius: 999px
+    border: 2px solid rgba(8, 10, 14, 0.7)
+    transform: translate(-50%, -50%)
+    cursor: grab
+    outline: none
+
+    &:focus-visible
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25)
+
+.ServingShareRangeSlider__marker--conservative
+    background: #9ec087
+
+.ServingShareRangeSlider__marker--expected
+    background: #c7e5a8
+
+.ServingShareRangeSlider__marker--strong
+    background: #e6f7d4
+
+.ServingShareRangeSlider__readoutGrid
+    display: grid
+    grid-template-columns: repeat(3, minmax(0, 1fr))
+    gap: 12px
+
+.ServingShareRangeSlider__readout
+    display: flex
+    flex-direction: column
+    gap: 10px
+    color: rgba(255, 255, 255, 0.78)
+    font-size: 14px
+
+    strong
+        font-size: 16px
+
+.ServingShareRangeSlider__hiddenControls
+    position: absolute
+    width: 1px
+    height: 1px
+    padding: 0
+    margin: -1px
+    overflow: hidden
+    clip: rect(0, 0, 0, 0)
+    white-space: nowrap
+    border: 0
+
 .WorkProfilesSlider
     display: flex
     flex-direction: column
@@ -423,6 +513,9 @@
 
 @media (max-width: 700px)
     .InputsFieldGrid
+        grid-template-columns: 1fr
+
+    .ServingShareRangeSlider__readoutGrid
         grid-template-columns: 1fr
 
     .ServerHourlyRangeSlider__header

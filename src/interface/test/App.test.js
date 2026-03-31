@@ -188,6 +188,17 @@ test("updates analytics from the server hourly slider adapter", () => {
   expect(screen.getAllByText("$3,839").length).toBeGreaterThan(0);
 });
 
+test("updates the serving share slider readout", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Income" }));
+  fireEvent.change(screen.getByLabelText("Serving Share Strong Slider"), {
+    target: { value: "0.6" },
+  });
+
+  expect(screen.getAllByText("60%").length).toBeGreaterThan(0);
+});
+
 test("supports goal rates based on actual projected income", () => {
   const actualIncomePlanInput = {
     ...examplePlanInput,
@@ -218,4 +229,39 @@ test("supports goal rates based on actual projected income", () => {
   expect(actualIncomeCell.currentIncome).toBeCloseTo(requiredIncomeCell.currentIncome, 5);
   expect(actualIncomeCell.requiredIncome).toBeLessThan(requiredIncomeCell.requiredIncome);
   expect(actualIncomeCell.gap).toBeLessThan(requiredIncomeCell.gap);
+});
+
+test("serving share assumptions affect strong-income analytics", () => {
+  const updatedPlanInput = {
+    ...examplePlanInput,
+    incomeSources: examplePlanInput.incomeSources.map((source) =>
+      source.id === "restaurant-job"
+        ? {
+            ...source,
+            assumptions: {
+              ...source.assumptions,
+              servingShare: {
+                ...source.assumptions.servingShare,
+                strong: 0.6,
+              },
+            },
+          }
+        : source
+    ),
+  };
+
+  const defaultMatrix = buildIncomeGapMatrix(examplePlanInput, "expected");
+  const updatedMatrix = buildIncomeGapMatrix(updatedPlanInput, "expected");
+  const defaultStrongCell = defaultMatrix.cells.find(
+    (cell) =>
+      cell.expenseScenario === "expected" &&
+      cell.incomeScenario === "strong"
+  );
+  const updatedStrongCell = updatedMatrix.cells.find(
+    (cell) =>
+      cell.expenseScenario === "expected" &&
+      cell.incomeScenario === "strong"
+  );
+
+  expect(updatedStrongCell.currentIncome).toBeGreaterThan(defaultStrongCell.currentIncome);
 });

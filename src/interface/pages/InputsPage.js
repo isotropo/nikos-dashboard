@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../../styles/InputsPage.sass";
 import Page from "../Page"
+import ServingShareRangeSlider from "../income/ServingShareRangeSlider";
 import ServerHourlyRangeSlider from "../income/ServerHourlyRangeSlider";
 import WorkProfilesSlider from "../income/WorkProfilesSlider";
 
@@ -132,6 +133,11 @@ const InputsPage = ({
             .map((item) => item.amount / item.everyMonths)
     );
     const serverHourlyRangeMin = restaurantSource.baseHourlyRate;
+    const servingShareMin = 0;
+    const servingShareMax = 1;
+    const servingShareConservative = restaurantSource.assumptions.servingShare.conservative;
+    const servingShareExpected = restaurantSource.assumptions.servingShare.expected;
+    const servingShareStrong = restaurantSource.assumptions.servingShare.strong;
     const serverHourlyConservative = restaurantSource.assumptions.serverHourly.conservative;
     const serverHourlyStrong = restaurantSource.assumptions.serverHourly.strong;
     const serverHourlyMidpoint = getMidpoint(serverHourlyConservative, serverHourlyStrong);
@@ -629,6 +635,54 @@ const InputsPage = ({
         });
     }
 
+    const updateServingShareValues = ({
+        conservative = servingShareConservative,
+        expected = servingShareExpected,
+        strong = servingShareStrong,
+    }) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            incomeSources: current.incomeSources.map((source) =>
+                source.id === restaurantSource.id
+                    ? {
+                        ...source,
+                        assumptions: {
+                            ...source.assumptions,
+                            servingShare: {
+                                ...source.assumptions.servingShare,
+                                conservative,
+                                expected,
+                                strong,
+                            },
+                        },
+                    }
+                    : source
+            ),
+        }));
+    }
+
+    const updateServingShareConservative = (value) =>
+    {
+        updateServingShareValues({
+            conservative: clamp(value, servingShareMin, servingShareExpected),
+        });
+    }
+
+    const updateServingShareExpected = (value) =>
+    {
+        updateServingShareValues({
+            expected: clamp(value, servingShareConservative, servingShareStrong),
+        });
+    }
+
+    const updateServingShareStrong = (value) =>
+    {
+        updateServingShareValues({
+            strong: clamp(value, servingShareExpected, servingShareMax),
+        });
+    }
+
     return <Page>
         <div className="InputsPage">
             <header className="InputsPage__header">
@@ -958,21 +1012,18 @@ const InputsPage = ({
                                 onChange={(value) => updateRestaurantAssumption("mealViolationsPerShift", "strong", value)}
                                 value={restaurantSource.assumptions.mealViolationsPerShift.strong}
                             />
-                            <Field
-                                label="Serving Share Expected"
-                                onChange={(value) => updateRestaurantAssumption("servingShare", "expected", value)}
-                                value={restaurantSource.assumptions.servingShare.expected}
-                            />
-                            <Field
-                                label="Serving Share Conservative"
-                                onChange={(value) => updateRestaurantAssumption("servingShare", "conservative", value)}
-                                value={restaurantSource.assumptions.servingShare.conservative}
-                            />
-                            <Field
-                                label="Serving Share Strong"
-                                onChange={(value) => updateRestaurantAssumption("servingShare", "strong", value)}
-                                value={restaurantSource.assumptions.servingShare.strong}
-                            />
+                            <div className="InputsField--full">
+                                <ServingShareRangeSlider
+                                    conservative={servingShareConservative}
+                                    expected={servingShareExpected}
+                                    max={servingShareMax}
+                                    min={servingShareMin}
+                                    onConservativeChange={updateServingShareConservative}
+                                    onExpectedChange={updateServingShareExpected}
+                                    onStrongChange={updateServingShareStrong}
+                                    strong={servingShareStrong}
+                                />
+                            </div>
                             <div className="InputsField--full">
                                 <ServerHourlyRangeSlider
                                     conservative={serverHourlyConservative}
