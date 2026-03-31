@@ -45,10 +45,12 @@ const buildSliderKeyHandler = (value, onChange) =>
 const ServingShareRangeSlider = ({
     conservative,
     expected,
+    expectedMode,
     max = 1,
     min = 0,
     onConservativeChange,
     onExpectedChange,
+    onResetExpected,
     onStrongChange,
     strong,
 }) =>
@@ -161,7 +163,11 @@ const ServingShareRangeSlider = ({
                     aria-valuemin={conservative}
                     aria-valuenow={expected}
                     aria-valuetext={formatPercent(expected)}
-                    className="ServingShareRangeSlider__marker ServingShareRangeSlider__marker--expected"
+                    className={`ServingShareRangeSlider__marker ${
+                        expectedMode === "derived"
+                            ? "ServingShareRangeSlider__marker--expectedDerived"
+                            : "ServingShareRangeSlider__marker--expectedManual"
+                    }`}
                     onKeyDown={buildSliderKeyHandler(expected, onExpectedChange)}
                     onPointerDown={(event) =>
                     {
@@ -199,14 +205,34 @@ const ServingShareRangeSlider = ({
                 <strong>{formatPercent(conservative)}</strong>
             </div>
             <div className="ServingShareRangeSlider__readout">
-                <span>Expected</span>
-                <strong>{formatPercent(expected)}</strong>
+                <span>
+                    Expected {expectedMode === "derived" ? "(Auto midpoint)" : "(Manual)"}
+                </span>
+                <strong
+                    className={
+                        expectedMode === "derived"
+                            ? "ServingShareRangeSlider__readoutValue--derived"
+                            : "ServingShareRangeSlider__readoutValue--manual"
+                    }
+                >
+                    {formatPercent(expected)}
+                </strong>
             </div>
             <div className="ServingShareRangeSlider__readout">
                 <span>Strong</span>
                 <strong>{formatPercent(strong)}</strong>
             </div>
         </div>
+
+        {expectedMode === "manual" && (
+            <button
+                className="ServingShareRangeSlider__reset"
+                onClick={onResetExpected}
+                type="button"
+            >
+                Reset to midpoint
+            </button>
+        )}
 
         <div className="ServingShareRangeSlider__hiddenControls" aria-hidden="true">
             <label>

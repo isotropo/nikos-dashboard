@@ -192,11 +192,27 @@ test("updates the serving share slider readout", () => {
   render(<App />);
 
   fireEvent.click(screen.getByRole("button", { name: "Income" }));
+  expect(screen.getByText("Serving Share")).toBeInTheDocument();
+  expect(screen.getAllByText("37.5%").length).toBeGreaterThan(0);
+
   fireEvent.change(screen.getByLabelText("Serving Share Strong Slider"), {
     target: { value: "0.6" },
   });
 
   expect(screen.getAllByText("60%").length).toBeGreaterThan(0);
+  expect(Number(screen.getByLabelText("Serving Share Expected Slider").value)).toBeCloseTo(0.45, 5);
+});
+
+test("serving share expected becomes manual when adjusted", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Income" }));
+  fireEvent.change(screen.getByLabelText("Serving Share Expected Slider"), {
+    target: { value: "0.4" },
+  });
+
+  expect(screen.getByText("Expected (Manual)")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Reset to midpoint" })).toBeInTheDocument();
 });
 
 test("supports goal rates based on actual projected income", () => {

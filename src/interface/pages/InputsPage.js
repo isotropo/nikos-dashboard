@@ -109,6 +109,7 @@ const InputsPage = ({
     const [variableExpensesExpanded, setVariableExpensesExpanded] = useState(true);
     const [irregularExpensesExpanded, setIrregularExpensesExpanded] = useState(true);
     const [workProfilesExpectedMode, setWorkProfilesExpectedMode] = useState("derived");
+    const [servingShareExpectedMode, setServingShareExpectedMode] = useState("derived");
     const restaurantSource = planInput.incomeSources[0];
     const [serverHourlyRangeMax, setServerHourlyRangeMax] = useState(100);
     const [serverHourlyExpectedMode, setServerHourlyExpectedMode] = useState("derived");
@@ -136,8 +137,11 @@ const InputsPage = ({
     const servingShareMin = 0;
     const servingShareMax = 1;
     const servingShareConservative = restaurantSource.assumptions.servingShare.conservative;
-    const servingShareExpected = restaurantSource.assumptions.servingShare.expected;
     const servingShareStrong = restaurantSource.assumptions.servingShare.strong;
+    const servingShareMidpoint = getMidpoint(servingShareConservative, servingShareStrong);
+    const servingShareExpected = servingShareExpectedMode === "derived"
+        ? servingShareMidpoint
+        : restaurantSource.assumptions.servingShare.expected;
     const serverHourlyConservative = restaurantSource.assumptions.serverHourly.conservative;
     const serverHourlyStrong = restaurantSource.assumptions.serverHourly.strong;
     const serverHourlyMidpoint = getMidpoint(serverHourlyConservative, serverHourlyStrong);
@@ -664,22 +668,53 @@ const InputsPage = ({
 
     const updateServingShareConservative = (value) =>
     {
+        const nextConservative = clamp(value, servingShareMin, servingShareStrong);
+        const nextExpected = servingShareExpectedMode === "derived"
+            ? getMidpoint(nextConservative, servingShareStrong)
+            : clamp(
+                restaurantSource.assumptions.servingShare.expected,
+                nextConservative,
+                servingShareStrong
+            );
+
         updateServingShareValues({
-            conservative: clamp(value, servingShareMin, servingShareExpected),
+            conservative: nextConservative,
+            expected: nextExpected,
         });
     }
 
     const updateServingShareExpected = (value) =>
     {
+        const nextExpected = clamp(value, servingShareConservative, servingShareStrong);
+
+        setServingShareExpectedMode("manual");
         updateServingShareValues({
-            expected: clamp(value, servingShareConservative, servingShareStrong),
+            expected: nextExpected,
         });
     }
 
     const updateServingShareStrong = (value) =>
     {
+        const nextStrong = clamp(value, servingShareConservative, servingShareMax);
+        const nextExpected = servingShareExpectedMode === "derived"
+            ? getMidpoint(servingShareConservative, nextStrong)
+            : clamp(
+                restaurantSource.assumptions.servingShare.expected,
+                servingShareConservative,
+                nextStrong
+            );
+
         updateServingShareValues({
-            strong: clamp(value, servingShareExpected, servingShareMax),
+            expected: nextExpected,
+            strong: nextStrong,
+        });
+    }
+
+    const resetServingShareExpected = () =>
+    {
+        setServingShareExpectedMode("derived");
+        updateServingShareValues({
+            expected: servingShareMidpoint,
         });
     }
 
@@ -1016,10 +1051,12 @@ const InputsPage = ({
                                 <ServingShareRangeSlider
                                     conservative={servingShareConservative}
                                     expected={servingShareExpected}
+                                    expectedMode={servingShareExpectedMode}
                                     max={servingShareMax}
                                     min={servingShareMin}
                                     onConservativeChange={updateServingShareConservative}
                                     onExpectedChange={updateServingShareExpected}
+                                    onResetExpected={resetServingShareExpected}
                                     onStrongChange={updateServingShareStrong}
                                     strong={servingShareStrong}
                                 />
