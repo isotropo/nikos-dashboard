@@ -27,6 +27,60 @@
     font-size: 14px
     font-weight: 700
 
+.IncomeAssumptionsSummary
+    display: flex
+    flex-direction: column
+    gap: 16px
+
+.IncomeAssumptionsSummary__header
+    max-width: 760px
+
+    h2
+        margin: 0 0 8px 0
+        font-size: 22px
+
+    p
+        margin: 0
+        color: rgba(255, 255, 255, 0.68)
+        line-height: 1.5
+
+.IncomeAssumptionsSummary__grid
+    display: grid
+    grid-template-columns: repeat(3, minmax(0, 1fr))
+    gap: 16px
+
+.IncomeAssumptionsSummary__card
+    display: flex
+    flex-direction: column
+    gap: 12px
+    border-radius: 18px
+    padding: 18px
+    background: rgba(255, 255, 255, 0.05)
+    border: 1px solid rgba(255, 255, 255, 0.08)
+
+.IncomeAssumptionsSummary__cardTitle
+    font-weight: 700
+
+.IncomeAssumptionsSummary__row
+    display: flex
+    align-items: baseline
+    justify-content: space-between
+    gap: 16px
+    font-size: 14px
+
+    span
+        color: rgba(255, 255, 255, 0.68)
+
+    strong
+        font-size: 16px
+
+.IncomeAssumptionsSummary__footnote
+    margin-top: auto
+    padding-top: 12px
+    border-top: 1px solid rgba(255, 255, 255, 0.08)
+    color: rgba(255, 255, 255, 0.58)
+    font-size: 13px
+
 .WorkProfileSelector
     display: flex
     gap: 10px
@@ -168,6 +222,9 @@
 @media (max-width: 1200px)
     .IncomeGapMatrix__toolbar
         align-items: flex-start
+
+    .IncomeAssumptionsSummary__grid
+        grid-template-columns: 1fr
 
     .IncomeGapMatrix__grid
         display: none

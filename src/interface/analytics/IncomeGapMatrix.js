@@ -18,6 +18,16 @@ const WORK_PROFILE_LABELS = {
     max: "Max Work",
 };
 
+const formatPercent = (value) =>
+{
+    return `${(value * 100).toFixed(value * 100 % 1 === 0 ? 0 : 1)}%`;
+}
+
+const formatDecimal = (value) =>
+{
+    return `${value.toFixed(1)}/shift`;
+}
+
 const formatCurrency = (value) =>
 {
     if (!Number.isFinite(value))
@@ -177,7 +187,57 @@ const MobileIncomeCarousel = ({ matrix }) =>
     </div>
 }
 
+const IncomeAssumptionsSummary = ({ planInput }) =>
+{
+    const restaurantSource = planInput.incomeSources[0];
+
+    if (!restaurantSource)
+    {
+        return null;
+    }
+
+    return <section className="IncomeAssumptionsSummary">
+        <header className="IncomeAssumptionsSummary__header">
+            <h2>Income Assumptions</h2>
+            <p>
+                These are the pay-side assumptions currently driving the three
+                income columns. Work volume is controlled separately by the
+                selected work profile above.
+            </p>
+        </header>
+
+        <div className="IncomeAssumptionsSummary__grid">
+            {Object.keys(INCOME_LABELS).map((incomeScenario) =>
+                <section
+                    className="IncomeAssumptionsSummary__card"
+                    key={incomeScenario}
+                >
+                    <div className="IncomeAssumptionsSummary__cardTitle">
+                        {INCOME_LABELS[incomeScenario]}
+                    </div>
+                    <div className="IncomeAssumptionsSummary__row">
+                        <span>Serving Share</span>
+                        <strong>{formatPercent(restaurantSource.assumptions.servingShare[incomeScenario])}</strong>
+                    </div>
+                    <div className="IncomeAssumptionsSummary__row">
+                        <span>Server Hourly</span>
+                        <strong>{formatCurrency(restaurantSource.assumptions.serverHourly[incomeScenario])}</strong>
+                    </div>
+                    <div className="IncomeAssumptionsSummary__row">
+                        <span>Meal Violations</span>
+                        <strong>{formatDecimal(restaurantSource.assumptions.mealViolationsPerShift[incomeScenario])}</strong>
+                    </div>
+                    <div className="IncomeAssumptionsSummary__footnote">
+                        Base hourly: {formatCurrency(restaurantSource.baseHourlyRate)}
+                    </div>
+                </section>
+            )}
+        </div>
+    </section>
+}
+
 const IncomeGapMatrix = ({
+    planInput,
     matrix,
     onSelectWorkProfile,
     selectedWorkProfile,
@@ -204,6 +264,8 @@ const IncomeGapMatrix = ({
                 selectedWorkProfile={selectedWorkProfile}
             />
         </div>
+
+        <IncomeAssumptionsSummary planInput={planInput} />
 
         <div className="IncomeGapMatrix__grid">
             <div className="IncomeGapMatrix__corner">Expense vs Income</div>

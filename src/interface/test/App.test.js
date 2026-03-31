@@ -21,7 +21,9 @@ test("renders the income gap matrix on the analytics page", () => {
   fireEvent.click(screen.getByText("Analytics"));
 
   expect(screen.getByText("Income Gap Matrix")).toBeInTheDocument();
+  expect(screen.getByText("Income Assumptions")).toBeInTheDocument();
   expect(screen.getAllByText("Conservative Income").length).toBeGreaterThan(0);
+  expect(screen.getAllByText("Serving Share").length).toBeGreaterThan(0);
   expect(screen.getByText("Expected Expenses")).toBeInTheDocument();
   expect(screen.getByText("Work Profile: Expected Work")).toBeInTheDocument();
   expect(screen.getAllByText("Hours Capacity Left").length).toBeGreaterThan(0);

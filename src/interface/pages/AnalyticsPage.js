@@ -11,6 +11,7 @@ const AnalyticsPage = ({ planInput }) =>
 
     return <Page>
         <IncomeGapMatrix
+            planInput={planInput}
             matrix={matrix}
             onSelectWorkProfile={setSelectedWorkProfile}
             selectedWorkProfile={selectedWorkProfile}
