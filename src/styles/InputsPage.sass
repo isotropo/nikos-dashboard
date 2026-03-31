@@ -183,7 +183,7 @@
     font-size: 14px
     line-height: 1.45
 
-.InputsSliderPanel
+.ServerHourlyRangeSlider
     display: flex
     flex-direction: column
     gap: 16px
@@ -191,7 +191,7 @@
     border-radius: 16px
     background: rgba(255, 255, 255, 0.04)
 
-.InputsSliderPanel__header
+.ServerHourlyRangeSlider__header
     display: grid
     grid-template-columns: minmax(0, 1fr) minmax(180px, 220px)
     gap: 16px
@@ -207,38 +207,87 @@
         font-size: 14px
         line-height: 1.45
 
-.InputsSliderPanel__scale
+.ServerHourlyRangeSlider__scale
     display: flex
     justify-content: space-between
     color: rgba(255, 255, 255, 0.62)
     font-size: 13px
 
-.InputsSliderControl
+.ServerHourlyRangeSlider__trackWrap
+    padding: 8px 0
+
+.ServerHourlyRangeSlider__track
+    position: relative
+    height: 8px
+    border-radius: 999px
+    background: rgba(255, 255, 255, 0.14)
+
+.ServerHourlyRangeSlider__activeRange
+    position: absolute
+    top: 0
+    bottom: 0
+    border-radius: 999px
+    background: linear-gradient(90deg, #5f88a8 0%, #90bdde 50%, #d9f2ff 100%)
+
+.ServerHourlyRangeSlider__marker
+    position: absolute
+    top: 50%
+    width: 18px
+    height: 18px
+    border-radius: 999px
+    border: 2px solid rgba(8, 10, 14, 0.7)
+    transform: translate(-50%, -50%)
+    cursor: grab
+    outline: none
+
+    &:focus-visible
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25)
+
+.ServerHourlyRangeSlider__marker--conservative
+    background: #8cb6d6
+
+.ServerHourlyRangeSlider__marker--expectedDerived
+    background: #a7bed7
+
+.ServerHourlyRangeSlider__marker--expectedManual
+    background: #f0fbff
+
+.ServerHourlyRangeSlider__marker--strong
+    background: #d7f1ff
+
+.ServerHourlyRangeSlider__readoutGrid
+    display: grid
+    grid-template-columns: repeat(3, minmax(0, 1fr))
+    gap: 12px
+
+.ServerHourlyRangeSlider__readout
     display: flex
     flex-direction: column
     gap: 10px
-
-    input[type="range"]
-        width: 100%
-
-.InputsSliderControl__labelRow
-    display: flex
-    align-items: center
-    justify-content: space-between
-    gap: 12px
     color: rgba(255, 255, 255, 0.78)
     font-size: 14px
 
-.InputsSliderControl__value
-    transition: color 120ms ease
+    strong
+        font-size: 16px
 
-.InputsSliderControl__value--derived
+.ServerHourlyRangeSlider__readoutValue--derived
     color: #a7bed7
 
-.InputsSliderControl__value--manual
+.ServerHourlyRangeSlider__readoutValue--manual
     color: #f0fbff
 
-.InputsSliderControl__reset
+.ServerHourlyRangeSlider__hiddenControls
+    position: absolute
+    width: 1px
+    height: 1px
+    padding: 0
+    margin: -1px
+    overflow: hidden
+    clip: rect(0, 0, 0, 0)
+    white-space: nowrap
+    border: 0
+
+.ServerHourlyRangeSlider__reset
     align-self: flex-start
     border: 1px solid rgba(255, 255, 255, 0.14)
     border-radius: 999px
@@ -264,7 +313,10 @@
     .InputsFieldGrid
         grid-template-columns: 1fr
 
-    .InputsSliderPanel__header
+    .ServerHourlyRangeSlider__header
+        grid-template-columns: 1fr
+
+    .ServerHourlyRangeSlider__readoutGrid
         grid-template-columns: 1fr
 
     .InputsLineItem

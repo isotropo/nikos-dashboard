@@ -283,7 +283,7 @@ Current behavior:
 - Expense items can now be included or excluded with per-row toggles
 - Goal rates display as percentages in the UI but are still stored as decimals
 - Goals now expose a shared `Rate Basis` control: `Required Income` or `Actual Income`
-- `serverHourly` now uses an adapter-first slider UI in the Income tab while still writing back into the current runtime numeric shape
+- `serverHourly` now uses an adapter-first integrated multi-marker slider in the Income tab while still writing back into the current runtime numeric shape
 - Editing inputs updates the analytics page live through shared app state
 
 Current limitation:
@@ -332,6 +332,7 @@ Recent implemented milestones:
 - Expense items can now be toggled in or out of analysis with `isEnabled`
 - Goal rate basis is now explicit in both the data model and the UI
 - A future slider contract for `serverHourly` is now defined in `planModel.js`
+- The Income tab now includes a custom `ServerHourlyRangeSlider` with conservative / expected / strong markers on one shared track
 
 Relevant commits:
 
@@ -348,6 +349,7 @@ Relevant commits:
 - `6d101b6` Add goal rate basis controls
 - `6eb51ff` Add goals tab to inputs
 - `4b19b64` Define server hourly slider contract
+- `b028804` Prototype server hourly slider editing
 - `1c639a5` Split inputs into expenses and income views
 
 ## Presentation Decisions
@@ -382,6 +384,7 @@ Current model simplifications:
 - Variable expenses only support `low/high`; midpoint-derived `expected` is implicit
 - Analysis does not yet explain included versus excluded items explicitly on the Analytics page
 - The `serverHourly` slider currently uses an adapter layer rather than the future runtime contract
+- Only `serverHourly` uses the new integrated slider interaction so far
 
 ## Open Product Questions
 
@@ -395,6 +398,7 @@ Questions to revisit later:
 - How broadly should `isEnabled` or include/exclude controls extend beyond expenses into goals and income sources?
 - Are `Required Income` and `Actual Income` the clearest user-facing labels for goal rate basis?
 - When should the temporary `serverHourly` adapter be replaced by a full runtime migration to the slider contract?
+- Should the integrated multi-marker slider pattern expand to `servingShare` or other income assumptions?
 - What is the right editing flow for raw line-item inputs without losing the clean derived-data structure?
 - When should overtime, double meal violations, and schedule availability be introduced?
 
@@ -405,11 +409,12 @@ Questions to revisit later:
 3. Decide how broadly include/exclude controls should extend beyond expenses
 4. Decide whether goal rate basis should remain shared or become per-goal later
 5. Add multiple income sources cleanly into the current domain model
-6. Decide whether `servingShare` and other income assumptions should get the same slider treatment as `serverHourly`
-7. Make hour-gap and feasibility wording clearer in the UI
-8. Consider showing included versus excluded items more explicitly on Analytics
-9. Expand work profiles into richer sustainability constraints when needed
-10. Add recommendation logic after inputs and analysis are more complete
+6. Decide whether `servingShare` and other income assumptions should get the same integrated slider treatment as `serverHourly`
+7. Decide when to migrate `serverHourly` from the adapter layer to the future runtime contract
+8. Make hour-gap and feasibility wording clearer in the UI
+9. Consider showing included versus excluded items more explicitly on Analytics
+10. Expand work profiles into richer sustainability constraints when needed
+11. Add recommendation logic after inputs and analysis are more complete
 
 ## Mental Model
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../../styles/InputsPage.sass";
 import Page from "../Page"
+import ServerHourlyRangeSlider from "../income/ServerHourlyRangeSlider";
 
 const toDisplayNumber = (value) =>
 {
@@ -869,95 +870,20 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                                 onChange={(value) => updateRestaurantAssumption("servingShare", "strong", value)}
                                 value={restaurantSource.assumptions.servingShare.strong}
                             />
-                            <div className="InputsSliderPanel InputsField--full">
-                                <div className="InputsSliderPanel__header">
-                                    <div>
-                                        <h3>Server Hourly</h3>
-                                        <p>
-                                            Base hourly rate sets the floor. Use the sliders to place conservative,
-                                            expected, and strong server rates within a visible range.
-                                        </p>
-                                    </div>
-                                    <Field
-                                        ariaLabel="Server Hourly Range Max"
-                                        label="Range Max"
-                                        onChange={updateServerHourlyRangeMaxValue}
-                                        value={serverHourlyRangeMax}
-                                    />
-                                </div>
-
-                                <div className="InputsSliderPanel__scale">
-                                    <span>{formatCurrency(serverHourlyRangeMin)}</span>
-                                    <span>{formatCurrency(serverHourlyRangeMax)}</span>
-                                </div>
-
-                                <div className="InputsSliderControl">
-                                    <div className="InputsSliderControl__labelRow">
-                                        <span>Conservative</span>
-                                        <strong>{formatCurrency(serverHourlyConservative)}</strong>
-                                    </div>
-                                    <input
-                                        aria-label="Server Hourly Conservative Slider"
-                                        max={serverHourlyStrong}
-                                        min={serverHourlyRangeMin}
-                                        onChange={(event) => updateServerHourlyConservative(Number(event.target.value))}
-                                        step="0.5"
-                                        type="range"
-                                        value={serverHourlyConservative}
-                                    />
-                                </div>
-
-                                <div className="InputsSliderControl">
-                                    <div className="InputsSliderControl__labelRow">
-                                        <span>
-                                            Expected
-                                            {serverHourlyExpectedMode === "derived" ? " (Auto midpoint)" : " (Manual)"}
-                                        </span>
-                                        <strong
-                                            className={`InputsSliderControl__value ${
-                                                serverHourlyExpectedMode === "derived"
-                                                    ? "InputsSliderControl__value--derived"
-                                                    : "InputsSliderControl__value--manual"
-                                            }`}
-                                        >
-                                            {formatCurrency(serverHourlyExpectedValue)}
-                                        </strong>
-                                    </div>
-                                    <input
-                                        aria-label="Server Hourly Expected Slider"
-                                        max={serverHourlyStrong}
-                                        min={serverHourlyConservative}
-                                        onChange={(event) => updateServerHourlyExpected(Number(event.target.value))}
-                                        step="0.5"
-                                        type="range"
-                                        value={serverHourlyExpectedValue}
-                                    />
-                                    {serverHourlyExpectedMode === "manual" && (
-                                        <button
-                                            className="InputsSliderControl__reset"
-                                            onClick={resetServerHourlyExpected}
-                                            type="button"
-                                        >
-                                            Reset To Midpoint
-                                        </button>
-                                    )}
-                                </div>
-
-                                <div className="InputsSliderControl">
-                                    <div className="InputsSliderControl__labelRow">
-                                        <span>Strong</span>
-                                        <strong>{formatCurrency(serverHourlyStrong)}</strong>
-                                    </div>
-                                    <input
-                                        aria-label="Server Hourly Strong Slider"
-                                        max={serverHourlyRangeMax}
-                                        min={serverHourlyConservative}
-                                        onChange={(event) => updateServerHourlyStrong(Number(event.target.value))}
-                                        step="0.5"
-                                        type="range"
-                                        value={serverHourlyStrong}
-                                    />
-                                </div>
+                            <div className="InputsField--full">
+                                <ServerHourlyRangeSlider
+                                    conservative={serverHourlyConservative}
+                                    expectedMode={serverHourlyExpectedMode}
+                                    expectedValue={serverHourlyExpectedValue}
+                                    max={serverHourlyRangeMax}
+                                    min={serverHourlyRangeMin}
+                                    onConservativeChange={updateServerHourlyConservative}
+                                    onExpectedChange={updateServerHourlyExpected}
+                                    onRangeMaxChange={updateServerHourlyRangeMaxValue}
+                                    onResetExpected={resetServerHourlyExpected}
+                                    onStrongChange={updateServerHourlyStrong}
+                                    strong={serverHourlyStrong}
+                                />
                             </div>
                         </div>
                     </InputsSection>
