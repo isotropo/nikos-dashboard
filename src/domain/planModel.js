@@ -225,7 +225,7 @@ export const examplePlanInput = {
       workedHoursPerShift: 7,
     },
     max: {
-      shiftsPerWeek: 5.5,
+      shiftsPerWeek: 5,
       workedHoursPerShift: 7,
     },
   },

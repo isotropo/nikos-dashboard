@@ -2,6 +2,7 @@ import { useState } from "react";
 import "../../styles/InputsPage.sass";
 import Page from "../Page"
 import ServerHourlyRangeSlider from "../income/ServerHourlyRangeSlider";
+import WorkProfilesSlider from "../income/WorkProfilesSlider";
 
 const toDisplayNumber = (value) =>
 {
@@ -102,6 +103,7 @@ const InputsPage = ({ planInput, setPlanInput }) =>
     const [fixedExpensesExpanded, setFixedExpensesExpanded] = useState(true);
     const [variableExpensesExpanded, setVariableExpensesExpanded] = useState(true);
     const [irregularExpensesExpanded, setIrregularExpensesExpanded] = useState(true);
+    const [workProfilesExpectedMode, setWorkProfilesExpectedMode] = useState("derived");
     const restaurantSource = planInput.incomeSources[0];
     const [serverHourlyRangeMax, setServerHourlyRangeMax] = useState(100);
     const [serverHourlyExpectedMode, setServerHourlyExpectedMode] = useState("derived");
@@ -377,6 +379,17 @@ const InputsPage = ({ planInput, setPlanInput }) =>
     const goalRateBasisDescription = planInput.goals.rateBasis === "actual_income"
         ? "Percentages are applied to the income projected from your current work setup."
         : "Percentages are applied to the income target the plan needs to work.";
+    const workProfileMinShifts = 0;
+    const workProfileMaxShifts = Math.max(
+        7,
+        planInput.workProfiles.max.shiftsPerWeek
+    );
+    const workProfileConservative = planInput.workProfiles.conservative.shiftsPerWeek;
+    const workProfileMax = planInput.workProfiles.max.shiftsPerWeek;
+    const workProfileMidpoint = Math.round((workProfileConservative + workProfileMax) / 2);
+    const workProfileExpectedShifts = workProfilesExpectedMode === "derived"
+        ? workProfileMidpoint
+        : planInput.workProfiles.expected.shiftsPerWeek;
 
     const updateWorkProfile = (profileKey, key, value) =>
     {
@@ -390,6 +403,84 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                 },
             },
         }));
+    }
+
+    const updateWorkProfileShiftValues = ({
+        conservative = workProfileConservative,
+        expected = planInput.workProfiles.expected.shiftsPerWeek,
+        max = workProfileMax,
+    }) =>
+    {
+        updatePlanInput((current) => ({
+            ...current,
+            workProfiles: {
+                ...current.workProfiles,
+                conservative: {
+                    ...current.workProfiles.conservative,
+                    shiftsPerWeek: conservative,
+                },
+                expected: {
+                    ...current.workProfiles.expected,
+                    shiftsPerWeek: expected,
+                },
+                max: {
+                    ...current.workProfiles.max,
+                    shiftsPerWeek: max,
+                },
+            },
+        }));
+    }
+
+    const updateConservativeWorkShifts = (value) =>
+    {
+        const nextConservative = clamp(Math.round(value), workProfileMinShifts, workProfileExpectedShifts);
+        const nextExpected = workProfilesExpectedMode === "derived"
+            ? Math.round((nextConservative + workProfileMax) / 2)
+            : clamp(
+                planInput.workProfiles.expected.shiftsPerWeek,
+                nextConservative,
+                workProfileMax
+            );
+
+        updateWorkProfileShiftValues({
+            conservative: nextConservative,
+            expected: nextExpected,
+        });
+    }
+
+    const updateExpectedWorkShifts = (value) =>
+    {
+        const nextExpected = clamp(Math.round(value), workProfileConservative, workProfileMax);
+
+        setWorkProfilesExpectedMode("manual");
+        updateWorkProfileShiftValues({
+            expected: nextExpected,
+        });
+    }
+
+    const updateMaxWorkShifts = (value) =>
+    {
+        const nextMax = clamp(Math.round(value), workProfileExpectedShifts, workProfileMaxShifts);
+        const nextExpected = workProfilesExpectedMode === "derived"
+            ? Math.round((workProfileConservative + nextMax) / 2)
+            : clamp(
+                planInput.workProfiles.expected.shiftsPerWeek,
+                workProfileConservative,
+                nextMax
+            );
+
+        updateWorkProfileShiftValues({
+            expected: nextExpected,
+            max: nextMax,
+        });
+    }
+
+    const resetExpectedWorkShifts = () =>
+    {
+        setWorkProfilesExpectedMode("derived");
+        updateWorkProfileShiftValues({
+            expected: workProfileMidpoint,
+        });
     }
 
     const updateConstraint = (key, value) =>
@@ -800,19 +891,27 @@ const InputsPage = ({ planInput, setPlanInput }) =>
                         title="Work Profiles"
                     >
                         <div className="InputsFieldGrid">
+                            <div className="InputsField--full">
+                                <WorkProfilesSlider
+                                    conservative={workProfileConservative}
+                                    expected={workProfileExpectedShifts}
+                                    expectedMode={workProfilesExpectedMode}
+                                    maxProfile={workProfileMax}
+                                    maxShifts={workProfileMaxShifts}
+                                    minShifts={workProfileMinShifts}
+                                    onConservativeChange={updateConservativeWorkShifts}
+                                    onExpectedChange={updateExpectedWorkShifts}
+                                    onMaxProfileChange={updateMaxWorkShifts}
+                                    onResetExpected={resetExpectedWorkShifts}
+                                />
+                            </div>
                             {Object.entries(planInput.workProfiles).map(([profileKey, profile]) => (
-                                <div className="InputsFieldGrid InputsField--full" key={profileKey}>
-                                    <Field
-                                        label={`${profileKey} Shifts / Week`}
-                                        onChange={(value) => updateWorkProfile(profileKey, "shiftsPerWeek", value)}
-                                        value={profile.shiftsPerWeek}
-                                    />
-                                    <Field
-                                        label={`${profileKey} Hours / Shift`}
-                                        onChange={(value) => updateWorkProfile(profileKey, "workedHoursPerShift", value)}
-                                        value={profile.workedHoursPerShift}
-                                    />
-                                </div>
+                                <Field
+                                    key={profileKey}
+                                    label={`${profileKey} Hours / Shift`}
+                                    onChange={(value) => updateWorkProfile(profileKey, "workedHoursPerShift", value)}
+                                    value={profile.workedHoursPerShift}
+                                />
                             ))}
                         </div>
                     </InputsSection>

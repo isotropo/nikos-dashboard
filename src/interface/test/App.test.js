@@ -37,7 +37,7 @@ test("switches the matrix when the work profile changes", () => {
   fireEvent.click(screen.getByRole("button", { name: "Max Work" }));
 
   expect(screen.getByText("Work Profile: Max Work")).toBeInTheDocument();
-  expect(screen.getAllByText("166.7 hrs").length).toBeGreaterThan(0);
+  expect(screen.getAllByText("151.5 hrs").length).toBeGreaterThan(0);
 });
 
 test("updates analytics when inputs change", () => {
@@ -126,6 +126,18 @@ test("switches between expenses and income input views", () => {
 
   expect(screen.getByText("Restaurant Income")).toBeInTheDocument();
   expect(screen.queryByText("Fixed Monthly Expenses")).not.toBeInTheDocument();
+});
+
+test("updates analytics from the work profiles slider", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Income" }));
+  fireEvent.change(screen.getByLabelText("Expected Work Shifts Slider"), {
+    target: { value: "5" },
+  });
+  fireEvent.click(screen.getByText("Analytics"));
+
+  expect(screen.getAllByText("151.5 hrs").length).toBeGreaterThan(0);
 });
 
 test("switches to the goals input view", () => {

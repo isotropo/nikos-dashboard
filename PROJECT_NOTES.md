@@ -61,7 +61,7 @@ Work structure:
 
 - Conservative work profile: 3 shifts per week
 - Expected work profile: 4 shifts per week
-- Max work profile: 5.5 shifts per week
+- Max work profile: 5 shifts per week
 - 7 worked hours per shift for the current example
 
 Important rule:
@@ -244,6 +244,7 @@ Important modeling rules:
 - The expected variable-expense case is derived as the midpoint of the range
 - Expense scenarios and income scenarios are independent axes
 - Work behavior is a third dimension, but shown through a selector instead of 27 cards
+- Work-profile `shiftsPerWeek` should currently snap to whole integers; doubles and partial-shift modeling can come later
 - Goals currently include `savingsRate`, `investingRate`, and a shared `rateBasis`
 - Expense line items now support `isEnabled`
 - `serverHourly` still uses the current numeric scenario shape at runtime, but `planModel.js` now defines an explicit future slider contract and example target shape
@@ -283,6 +284,7 @@ Current behavior:
 - Expense items can now be included or excluded with per-row toggles
 - Goal rates display as percentages in the UI but are still stored as decimals
 - Goals now expose a shared `Rate Basis` control: `Required Income` or `Actual Income`
+- Work profiles now use an integrated slider for `shiftsPerWeek`, with `expected` defaulting to the rounded midpoint between conservative and max
 - `serverHourly` now uses an adapter-first integrated multi-marker slider in the Income tab while still writing back into the current runtime numeric shape
 - Editing inputs updates the analytics page live through shared app state
 
@@ -332,6 +334,7 @@ Recent implemented milestones:
 - Expense items can now be toggled in or out of analysis with `isEnabled`
 - Goal rate basis is now explicit in both the data model and the UI
 - A future slider contract for `serverHourly` is now defined in `planModel.js`
+- The Income tab now includes a custom `WorkProfilesSlider` with conservative / expected / max markers on one shared track
 - The Income tab now includes a custom `ServerHourlyRangeSlider` with conservative / expected / strong markers on one shared track
 
 Relevant commits:
@@ -385,6 +388,8 @@ Current model simplifications:
 - Analysis does not yet explain included versus excluded items explicitly on the Analytics page
 - The `serverHourly` slider currently uses an adapter layer rather than the future runtime contract
 - Only `serverHourly` uses the new integrated slider interaction so far
+- Work-profile `shiftsPerWeek` now uses an integrated slider, but doubles and partial-shift behavior are still intentionally deferred
+- Work-profile shifts are intentionally treated as whole-shift counts for now
 
 ## Open Product Questions
 
@@ -399,6 +404,7 @@ Questions to revisit later:
 - Are `Required Income` and `Actual Income` the clearest user-facing labels for goal rate basis?
 - When should the temporary `serverHourly` adapter be replaced by a full runtime migration to the slider contract?
 - Should the integrated multi-marker slider pattern expand to `servingShare` or other income assumptions?
+- How should the work-profile slider eventually relate to doubles, split shifts, or broader sustainability modeling?
 - What is the right editing flow for raw line-item inputs without losing the clean derived-data structure?
 - When should overtime, double meal violations, and schedule availability be introduced?
 
@@ -410,11 +416,12 @@ Questions to revisit later:
 4. Decide whether goal rate basis should remain shared or become per-goal later
 5. Add multiple income sources cleanly into the current domain model
 6. Decide whether `servingShare` and other income assumptions should get the same integrated slider treatment as `serverHourly`
-7. Decide when to migrate `serverHourly` from the adapter layer to the future runtime contract
-8. Make hour-gap and feasibility wording clearer in the UI
-9. Consider showing included versus excluded items more explicitly on Analytics
-10. Expand work profiles into richer sustainability constraints when needed
-11. Add recommendation logic after inputs and analysis are more complete
+7. Decide whether work-profile `workedHoursPerShift` should stay numeric or get a clearer shared interaction
+8. Decide when to migrate `serverHourly` from the adapter layer to the future runtime contract
+9. Make hour-gap and feasibility wording clearer in the UI
+10. Consider showing included versus excluded items more explicitly on Analytics
+11. Expand work profiles into richer sustainability constraints when needed
+12. Add recommendation logic after inputs and analysis are more complete
 
 ## Mental Model
 
