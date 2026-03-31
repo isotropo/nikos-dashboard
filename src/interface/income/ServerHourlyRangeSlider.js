@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const STEP = 0.5;
 
@@ -64,7 +64,7 @@ const ServerHourlyRangeSlider = ({
     const trackRef = useRef(null);
     const [draggingMarker, setDraggingMarker] = useState(null);
 
-    const updateMarkerFromClientX = (markerKey, clientX) =>
+    const updateMarkerFromClientX = useCallback((markerKey, clientX) =>
     {
         if (!trackRef.current)
         {
@@ -90,7 +90,7 @@ const ServerHourlyRangeSlider = ({
             default:
                 return;
         }
-    }
+    }, [max, min, onConservativeChange, onExpectedChange, onStrongChange]);
 
     useEffect(() =>
     {
@@ -117,7 +117,7 @@ const ServerHourlyRangeSlider = ({
             window.removeEventListener("pointermove", handlePointerMove);
             window.removeEventListener("pointerup", handlePointerUp);
         };
-    }, [draggingMarker, min, max, conservative, expectedValue, strong]);
+    }, [draggingMarker, updateMarkerFromClientX]);
 
     return <div className="ServerHourlyRangeSlider">
         <div className="ServerHourlyRangeSlider__header">

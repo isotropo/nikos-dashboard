@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
@@ -46,7 +46,7 @@ const WorkProfilesSlider = ({
     const trackRef = useRef(null);
     const [draggingMarker, setDraggingMarker] = useState(null);
 
-    const updateMarkerFromClientX = (markerKey, clientX) =>
+    const updateMarkerFromClientX = useCallback((markerKey, clientX) =>
     {
         if (!trackRef.current)
         {
@@ -72,7 +72,7 @@ const WorkProfilesSlider = ({
             default:
                 return;
         }
-    }
+    }, [maxShifts, minShifts, onConservativeChange, onExpectedChange, onMaxProfileChange]);
 
     useEffect(() =>
     {
@@ -99,7 +99,7 @@ const WorkProfilesSlider = ({
             window.removeEventListener("pointermove", handlePointerMove);
             window.removeEventListener("pointerup", handlePointerUp);
         };
-    }, [draggingMarker, minShifts, maxShifts, conservative, expected, maxProfile]);
+    }, [draggingMarker, updateMarkerFromClientX]);
 
     return <div className="WorkProfilesSlider">
         <div className="WorkProfilesSlider__header">
