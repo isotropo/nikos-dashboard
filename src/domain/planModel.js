@@ -2,6 +2,7 @@ export const EXPENSE_SCENARIOS = ["low", "expected", "high"];
 export const INCOME_SCENARIOS = ["conservative", "expected", "strong"];
 export const WORK_PROFILES = ["conservative", "expected", "max"];
 export const GOAL_RATE_BASES = ["required_income", "actual_income"];
+export const SERVER_HOURLY_EXPECTED_MODES = ["derived", "manual"];
 
 /**
  * A value that can stay fixed for now, but later expose scenario-specific
@@ -13,6 +14,43 @@ export const GOAL_RATE_BASES = ["required_income", "actual_income"];
  * @property {number | null} high
  * @property {number | null} conservative
  * @property {number | null} strong
+ */
+
+/**
+ * The visible bounds for the future server-hourly slider UI.
+ *
+ * `min` should normally mirror `baseHourlyRate`, while `max` stays user-editable
+ * so the slider can reflect a realistic upper bound for that job.
+ *
+ * @typedef {Object} SliderRange
+ * @property {number} min
+ * @property {number} max
+ */
+
+/**
+ * The future derived-or-manual state for the expected server-hourly marker.
+ *
+ * When `mode` is `derived`, the effective expected value should be the midpoint
+ * of `conservative` and `strong`. When `mode` is `manual`, `manualValue` is the
+ * user-authored expected value inside that same range.
+ *
+ * @typedef {Object} DerivedOrManualValue
+ * @property {"derived" | "manual"} mode
+ * @property {number | null} manualValue
+ */
+
+/**
+ * Planned future contract for the `serverHourly` assumption once the slider UI
+ * replaces the current three-number editor.
+ *
+ * This is intentionally defined now so the eventual migration has an explicit
+ * target shape before the runtime data model changes.
+ *
+ * @typedef {Object} ServerHourlySliderAssumption
+ * @property {SliderRange} range
+ * @property {number} conservative
+ * @property {DerivedOrManualValue} expected
+ * @property {number} strong
  */
 
 /**
@@ -63,7 +101,7 @@ export const GOAL_RATE_BASES = ["required_income", "actual_income"];
  * @property {{
  *   mealViolationsPerShift: VarianceValue,
  *   servingShare: VarianceValue,
- *   serverHourly: VarianceValue
+ *   serverHourly: VarianceValue | ServerHourlySliderAssumption
  * }} assumptions
  */
 
@@ -225,4 +263,23 @@ export const examplePlanInput = {
       },
     },
   ],
+};
+
+/**
+ * Example of the planned future `serverHourly` contract for the slider-based UI.
+ *
+ * This is not wired into the runtime analysis yet; it exists as the explicit
+ * migration target for the upcoming slider implementation.
+ */
+export const exampleServerHourlySliderAssumption = {
+  range: {
+    min: 17.81,
+    max: 100,
+  },
+  conservative: 30,
+  expected: {
+    mode: "derived",
+    manualValue: null,
+  },
+  strong: 55,
 };
