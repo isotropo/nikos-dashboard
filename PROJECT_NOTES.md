@@ -285,13 +285,13 @@ Current behavior:
 - Goal rates display as percentages in the UI but are still stored as decimals
 - Goals now expose a shared `Rate Basis` control: `Required Income` or `Actual Income`
 - Work profiles now use an integrated slider for `shiftsPerWeek`, with `expected` defaulting to the rounded midpoint between conservative and max
+- `servingShare` now uses an integrated multi-marker slider from `0%` to `100%`, with `expected` defaulting to the midpoint unless manually adjusted
 - `serverHourly` now uses an adapter-first integrated multi-marker slider in the Income tab while still writing back into the current runtime numeric shape
 - Editing inputs updates the analytics page live through shared app state
 - The mobile shell now uses a sticky top nav and safer viewport/scroll behavior instead of relying on the original `absolute + 100vh` layout
 
 Emerging direction:
 
-- `servingShare` probably belongs to the same unified scenario language as `serverHourly`, rather than living forever as three disconnected numeric inputs
 - The Analytics page will likely need compact assumption summaries so users can see not just outcomes, but the key inputs driving each scenario card
 - Long term, schedule-aware integrations such as Google Calendar, and possibly HotSchedules if practical, could make work-feasibility inputs more grounded in actual scheduled reality
 
@@ -309,6 +309,9 @@ Presentation model:
 - Rows: expense scenarios `low / expected / high`
 - Columns: income scenarios `conservative / expected / strong`
 - Selector above the matrix: work profile `conservative / expected / max`
+- A compact `Work Assumptions` summary explains the selected work profile
+- A compact `Income Assumptions` summary explains the pay-side assumptions behind the three income columns
+- A `Serving Share Isolation` control can freeze serving share to `conservative`, `expected`, or `strong`, or return to scenario-driven mode by tapping the active option again
 
 Each scenario card shows:
 
@@ -336,6 +339,8 @@ Recent implemented milestones:
 - Analytics page now renders a real `IncomeGapMatrix`
 - Matrix cards show both monetary and hour-based gap information
 - Analytics now supports a selectable work-profile layer
+- Analytics now includes compact `Work Assumptions` and `Income Assumptions` summaries
+- Analytics now supports optional serving-share isolation without changing saved input values
 - Inputs page now edits shared `planInput` state used directly by Analytics
 - Inputs are split into `Expenses`, `Income`, and `Goals` views
 - Fixed, variable, and irregular expenses are all now dynamic editable collections
@@ -343,6 +348,7 @@ Recent implemented milestones:
 - Goal rate basis is now explicit in both the data model and the UI
 - A future slider contract for `serverHourly` is now defined in `planModel.js`
 - The Income tab now includes a custom `WorkProfilesSlider` with conservative / expected / max markers on one shared track
+- The Income tab now includes a custom `ServingShareRangeSlider` with conservative / expected / strong markers on one shared track
 - The Income tab now includes a custom `ServerHourlyRangeSlider` with conservative / expected / strong markers on one shared track
 - The app shell now has a mobile-specific sticky nav and safer viewport-height handling for iOS Safari
 
@@ -394,11 +400,11 @@ Current model simplifications:
 - Work profiles currently focus on shift volume, not full sustainability or burnout modeling
 - Goals are still only percent-based rules, not fixed monthly amounts or percent-with-minimum
 - Variable expenses only support `low/high`; midpoint-derived `expected` is implicit
-- Analysis does not yet explain included versus excluded items explicitly on the Analytics page
+- Analysis still does not explain included versus excluded items explicitly on the Analytics page
 - The `serverHourly` slider currently uses an adapter layer rather than the future runtime contract
-- Only `serverHourly` uses the new integrated slider interaction so far
+- Both `servingShare` and `serverHourly` now use integrated slider interactions, but only `serverHourly` has an explicit future runtime contract defined so far
 - Work-profile `shiftsPerWeek` now uses an integrated slider, but doubles and partial-shift behavior are still intentionally deferred
-- Analytics still emphasizes outcomes more than input assumptions, so some scenario effects may feel opaque
+- Analytics now exposes key work and income assumptions, but still emphasizes outcomes more than fully isolated variable analysis
 - Work-profile shifts are intentionally treated as whole-shift counts for now
 - Schedule syncing is not implemented; work profiles are still user-authored rather than imported from a calendar or scheduling system
 
@@ -414,7 +420,7 @@ Questions to revisit later:
 - How broadly should `isEnabled` or include/exclude controls extend beyond expenses into goals and income sources?
 - Are `Required Income` and `Actual Income` the clearest user-facing labels for goal rate basis?
 - When should the temporary `serverHourly` adapter be replaced by a full runtime migration to the slider contract?
-- Should the integrated multi-marker slider pattern expand to `servingShare` or other income assumptions?
+- Should serving-share isolation expand into a broader variable-isolation system for other income assumptions?
 - How should the work-profile slider eventually relate to doubles, split shifts, or broader sustainability modeling?
 - What is the clearest way to show the key assumptions behind each analytics scenario card without making the matrix too dense?
 - What is the right editing flow for raw line-item inputs without losing the clean derived-data structure?
@@ -428,7 +434,7 @@ Questions to revisit later:
 3. Decide how broadly include/exclude controls should extend beyond expenses
 4. Decide whether goal rate basis should remain shared or become per-goal later
 5. Add multiple income sources cleanly into the current domain model
-6. Decide whether `servingShare` and other income assumptions should get the same integrated slider treatment as `serverHourly`
+6. Decide whether serving-share isolation should expand to `serverHourly`, `mealViolationsPerShift`, or other variables
 7. Decide whether work-profile `workedHoursPerShift` should stay numeric or get a clearer shared interaction
 8. Decide when to migrate `serverHourly` from the adapter layer to the future runtime contract
 9. Make hour-gap and feasibility wording clearer in the UI
