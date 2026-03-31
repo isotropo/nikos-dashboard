@@ -28,6 +28,11 @@ const formatDecimal = (value) =>
     return `${value.toFixed(1)}/shift`;
 }
 
+const formatShifts = (value) =>
+{
+    return `${value} / week`;
+}
+
 const formatCurrency = (value) =>
 {
     if (!Number.isFinite(value))
@@ -187,6 +192,50 @@ const MobileIncomeCarousel = ({ matrix }) =>
     </div>
 }
 
+const WorkAssumptionsSummary = ({ planInput, selectedWorkProfile }) =>
+{
+    const workProfile = planInput.workProfiles[selectedWorkProfile];
+
+    if (!workProfile)
+    {
+        return null;
+    }
+
+    const workedHoursPerMonth = workProfile.shiftsPerWeek * workProfile.workedHoursPerShift * 4.33;
+
+    return <section className="WorkAssumptionsSummary">
+        <header className="WorkAssumptionsSummary__header">
+            <h2>Work Assumptions</h2>
+            <p>
+                This is the active work profile currently layered onto the
+                matrix. It changes how much you work, while the income columns
+                still describe how well that work pays.
+            </p>
+        </header>
+
+        <section className="WorkAssumptionsSummary__card">
+            <div className="WorkAssumptionsSummary__cardTitle">
+                {WORK_PROFILE_LABELS[selectedWorkProfile]}
+            </div>
+            <div className="WorkAssumptionsSummary__row">
+                <span>Shifts</span>
+                <strong>{formatShifts(workProfile.shiftsPerWeek)}</strong>
+            </div>
+            <div className="WorkAssumptionsSummary__row">
+                <span>Hours / Shift</span>
+                <strong>{formatHours(workProfile.workedHoursPerShift)}</strong>
+            </div>
+            <div className="WorkAssumptionsSummary__row">
+                <span>Worked Hours / Month</span>
+                <strong>{formatHours(workedHoursPerMonth)}</strong>
+            </div>
+            <div className="WorkAssumptionsSummary__footnote">
+                Weekly cap: {formatHours(planInput.constraints.maxWorkedHoursPerWeek)}
+            </div>
+        </section>
+    </section>
+}
+
 const IncomeAssumptionsSummary = ({ planInput }) =>
 {
     const restaurantSource = planInput.incomeSources[0];
@@ -264,6 +313,11 @@ const IncomeGapMatrix = ({
                 selectedWorkProfile={selectedWorkProfile}
             />
         </div>
+
+        <WorkAssumptionsSummary
+            planInput={planInput}
+            selectedWorkProfile={selectedWorkProfile}
+        />
 
         <IncomeAssumptionsSummary planInput={planInput} />
 
