@@ -6,6 +6,7 @@ import Right from "./Right";
 
 function App() {
   const [selectedPage, setSelectedPage] = useState("Inputs");
+  const [selectedInputsView, setSelectedInputsView] = useState("Expenses");
   const [planInput, setPlanInput] = useState(examplePlanInput);
 
   return (
@@ -17,7 +18,9 @@ function App() {
       <Right
         planInput={planInput}
         selectedPage={selectedPage}
+        selectedInputsView={selectedInputsView}
         setPlanInput={setPlanInput}
+        setSelectedInputsView={setSelectedInputsView}
       />
     </div>
   );

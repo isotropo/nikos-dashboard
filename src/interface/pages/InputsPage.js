@@ -97,9 +97,13 @@ const InputsSection = ({ children, hint, title }) =>
     </section>
 }
 
-const InputsPage = ({ planInput, setPlanInput }) =>
+const InputsPage = ({
+    planInput,
+    selectedInputsView,
+    setPlanInput,
+    setSelectedInputsView,
+}) =>
 {
-    const [selectedInputsView, setSelectedInputsView] = useState("Expenses");
     const [fixedExpensesExpanded, setFixedExpensesExpanded] = useState(true);
     const [variableExpensesExpanded, setVariableExpensesExpanded] = useState(true);
     const [irregularExpensesExpanded, setIrregularExpensesExpanded] = useState(true);

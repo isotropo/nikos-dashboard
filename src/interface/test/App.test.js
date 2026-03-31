@@ -151,6 +151,21 @@ test("switches to the goals input view", () => {
   expect(screen.queryByText("Restaurant Income")).not.toBeInTheDocument();
 });
 
+test("preserves the selected inputs tab when switching pages", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Goals" }));
+  expect(screen.getByRole("heading", { name: "Goals" })).toBeInTheDocument();
+
+  fireEvent.click(screen.getByText("Analytics"));
+  expect(screen.getByText("Income Gap Matrix")).toBeInTheDocument();
+
+  fireEvent.click(screen.getByText("Inputs"));
+
+  expect(screen.getByRole("heading", { name: "Goals" })).toBeInTheDocument();
+  expect(screen.getByLabelText("Savings Rate")).toBeInTheDocument();
+});
+
 test("switches goal rate basis from the inputs UI", () => {
   render(<App />);
 
